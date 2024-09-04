@@ -2,10 +2,12 @@ import { ReactNode } from 'react';
 import { Text, TouchableOpacity, TouchableOpacityProps } from 'react-native';
 
 type ButtonProps = TouchableOpacityProps & {
+    light?: boolean;
     children: ReactNode;
 }
 
 type ButtonTextProps = {
+    light?: boolean;
     children: ReactNode;
 }
 
@@ -13,10 +15,10 @@ type ButtonIconProps = {
     children: ReactNode;
 }
 
-function Button({ children, ...rest }: ButtonProps) {
+function Button({ children, light = false, ...rest }: ButtonProps) {
     return (
         <TouchableOpacity
-            className="w-full bg-blue-950 h-12 rounded-lg items-center justify-center flex-row"
+            className={`w-full h-12 rounded-lg items-center justify-center flex-row ${light === true ? "bg-gray-50" : "bg-blue-950"}`}
             activeOpacity={0.7}
             {...rest}
         >
@@ -25,9 +27,9 @@ function Button({ children, ...rest }: ButtonProps) {
     )
 }
 
-function ButtonText({ children }: ButtonTextProps) {
+function ButtonText({ children, light = false }: ButtonTextProps) {
     return (
-        <Text className="text-lg font-body text-gray-50 mr-4">{children}</Text>
+        <Text className={`text-lg font-body mr-4 ${light === false ? "text-gray-50" : "text-blue-950"}`}>{children}</Text>
     )
 }
 

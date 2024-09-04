@@ -1,11 +1,11 @@
-import { Slot, useRouter } from "expo-router";
+import { Slot } from "expo-router";
 
 import {
   useFonts,
-  Roboto_400Regular,
-  Roboto_500Medium,
-  Roboto_700Bold
-} from '@expo-google-fonts/roboto';
+  Poppins_400Regular,
+  Poppins_500Medium,
+  Poppins_700Bold,
+} from '@expo-google-fonts/poppins';
 import { StatusBar } from "expo-status-bar";
 import { Loading } from "../components/loading";
 
@@ -13,9 +13,9 @@ import { Loading } from "../components/loading";
 // Obs: Temos que configurar dentro do tailwind.config.js no extend, para fazer junção as fontes com tailwindcss
 export default function Layout() {
   const [fontsLoaded] = useFonts({
-    Roboto_400Regular,
-    Roboto_500Medium,
-    Roboto_700Bold
+    Poppins_400Regular,
+    Poppins_500Medium,
+    Poppins_700Bold,
   });
 
   if (!fontsLoaded) {

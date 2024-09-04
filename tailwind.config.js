@@ -6,10 +6,10 @@ module.exports = {
   theme: {
     extend: {
       fontFamily: {
-        heading: "Roboto_500Medium",
-        subtitle: "Roboto_500Medium",
-        body: "Roboto_400Regular",
-        bold: "Roboto_700Bold"
+        heading: "Poppins_500Medium",
+        subtitle: "Poppins_500Medium",
+        body: "Poppins_400Regular",
+        bold: "Poppins_700Bold"
       }
     },
   },
