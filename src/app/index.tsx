@@ -30,8 +30,7 @@ export default function InitialConfig() {
 
                 <View>
                     <Input
-                        title="Endereço IP (Servidor)"
-                        placeholder="000.000.000.000"
+                        title="MD5"
                         value={ipConnection}
                         onChangeText={setIpConnection}
                         keyboardType="number-pad"
