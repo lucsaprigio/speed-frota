@@ -5,7 +5,7 @@ import { MaskedTextInputProps, MaskedTextInput } from 'react-native-mask-text';
 type InputProps = MaskedTextInputProps & {
     title?: string;
     footerTitle?: string;
-    mask: string;
+    mask?: string;
 }
 
 export function TextMaskInput({ title, footerTitle, mask, ...rest }: InputProps) {

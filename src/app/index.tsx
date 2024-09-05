@@ -4,19 +4,23 @@ import { Header } from "../components/header";
 import { Input } from "../components/input";
 import { Button } from "../components/button";
 import { TextMaskInput } from "../components/input-mask";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "expo-router";
+import * as Device from 'expo-device';
 
 export default function InitialConfig() {
     const router = useRouter();
 
-    const [ipConnection, setIpConnection] = useState('');
-    const [cnpj, setCnpj] = useState('');
+    const [username, setUsername] = useState('');
     const [email, setEmail] = useState('');
+
+    const md5 = `${Device.osInternalBuildId.replace(/[-.,_]/g, "")}${Device.totalMemory}${Device.platformApiLevel}`;
+
 
     function handleRegister() {
         return router.push('/signin');
     }
+
 
     return (
         <GestureHandlerRootView>
@@ -31,18 +35,17 @@ export default function InitialConfig() {
                 <View>
                     <Input
                         title="MD5"
-                        value={ipConnection}
-                        onChangeText={setIpConnection}
+                        value={md5}
                         keyboardType="number-pad"
+                        editable
                     />
-                    <TextMaskInput
-                        title="CNPJ"
-                        placeholder="00.000.000/0000-00"
-                        maxLength={19}
-                        value={cnpj}
-                        onChangeText={setCnpj}
-                        keyboardType="number-pad"
-                        mask='99.999.999/9999-99'
+                    <Input
+                        title="Nome"
+                        placeholder="Digite seu nome"
+                        maxLength={40}
+                        value={username}
+                        onChangeText={setUsername}
+                        autoComplete="additional-name"
                     />
                     <Input
                         title="E-mail"
