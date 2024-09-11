@@ -8,6 +8,8 @@ import {
 } from '@expo-google-fonts/poppins';
 import { StatusBar } from "expo-status-bar";
 import { Loading } from "../components/loading";
+import { SQLiteProvider } from "expo-sqlite";
+import { initializeDatabase } from "../databases/initializeDatabase";
 
 // Carregar as fontes antes de iniciar a aplicação
 // Obs: Temos que configurar dentro do tailwind.config.js no extend, para fazer junção as fontes com tailwindcss
@@ -23,9 +25,9 @@ export default function Layout() {
   }
 
   return (
-    <>
+    <SQLiteProvider databaseName="speed.db" onInit={initializeDatabase}>
       <StatusBar translucent backgroundColor="transparent" />
       <Slot />
-    </>
+    </SQLiteProvider>
   )
 }
