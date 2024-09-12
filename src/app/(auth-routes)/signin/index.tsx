@@ -36,7 +36,7 @@ export default function SignIn() {
                 Alert.alert("Senha incorreta.");
             } */
 
-                        return router.push("/home");
+            return router.push("/home");
 
         } catch (error) {
             console.log(error);

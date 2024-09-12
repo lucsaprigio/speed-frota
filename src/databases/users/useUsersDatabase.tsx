@@ -9,7 +9,6 @@ export type UserDatabase = {
     device: String;
 }
 
-
 export function useUsersDatabase() {
     const database = useSQLiteContext();
 
