@@ -15,6 +15,7 @@ import { api } from "../api/api";
 import { Loading } from "../components/loading";
 import { Feather } from "@expo/vector-icons";
 import colors from "tailwindcss/colors";
+import { taskFetch } from "../tasks/backgroundFetch";
 
 export default function InitialConfig() {
     const router = useRouter();

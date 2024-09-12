@@ -18,8 +18,12 @@
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
-        "backgroundColor": "#EEF4ED"
-      }
+        "backgroundColor": "#EEF4ED",
+        "permissions": [
+          "RECEIVE_BOOT_COMPLETED"
+        ]
+      },
+      "package": "com.pripowla.speedfrota"
     },
     "web": {
       "bundler": "metro",
