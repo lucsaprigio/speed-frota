@@ -1,27 +1,25 @@
 import { useSQLiteContext } from "expo-sqlite";
 
-export type UserDatabase = {
+export type VehiclesDatabase = {
     id: number;
-    username: string;
-    password: string;
+    license_plate: string;
+    model: string;
 }
 
-export function useUsersDatabase() {
+export function useVehiclesDatabase() {
     const database = useSQLiteContext();
 
-    async function create(data: UserDatabase) {
+    async function create(data: VehiclesDatabase) {
         const statement = await database.prepareAsync(
-            'INSERT INTO users (id, username, password) VALUES ($id, $username, $password);'
+            'INSERT INTO vehicles (id, license_plate, model) VALUES ($id, $license_plate, $model);'
         );
 
         try {
             await statement.executeAsync({
                 $id: data.id,
-                $username: data.username,
-                $password: data.password
+                $license_plate: data.license_plate,
+                $model: data.model
             });
-
-            console.log(`Usuário ${data.username} cadastrado.`);
 
         } catch (error) {
             throw error;
@@ -30,21 +28,18 @@ export function useUsersDatabase() {
         }
     };
 
-    async function update(data: UserDatabase) {
+    async function update(data: VehiclesDatabase) {
         const statement = await database.prepareAsync(
-            `UPDATE users SET username = $username, password = $password WHERE id = $id`
+            `UPDATE vehicles SET model = $model, license_plate = $license_plate WHERE id = $id`
         );
-
-        console.log(data);
 
         try {
             await statement.executeAsync({
                 $id: data.id,
-                $username: data.username,
-                $password: data.password,
+                $model: data.model,
+                $license_plate: data.license_plate,
             });
 
-            console.log(`Usuário ${data.username} atualizado.`);
         } catch (error) {
             throw error;
         } finally {
@@ -54,9 +49,9 @@ export function useUsersDatabase() {
 
     async function listAll() {
         try {
-            const query = 'SELECT * FROM users';
+            const query = 'SELECT * FROM vehicles';
 
-            const response = await database.getAllAsync<UserDatabase>(query);
+            const response = await database.getAllAsync<VehiclesDatabase>(query);
 
             return response;
         } catch (error) {
@@ -66,9 +61,9 @@ export function useUsersDatabase() {
 
     async function findById(id: string) {
         try {
-            const query = 'SELECT * FROM users WHERE id = ?';
+            const query = 'SELECT * FROM vehicles WHERE id = ?';
 
-            const response = await database.getAllAsync<UserDatabase>(query, id);
+            const response = await database.getAllAsync<VehiclesDatabase>(query, id);
 
             return response;
         } catch (error) {
@@ -76,9 +71,9 @@ export function useUsersDatabase() {
         }
     }
 
-    async function deleteAllUsers() {
+    async function deleteAll() {
         const statement = await database.prepareAsync(
-            'DELETE FROM users;'
+            'DELETE FROM vehicles;'
         );
 
         try {
@@ -91,5 +86,5 @@ export function useUsersDatabase() {
         }
     }
 
-    return { create, listAll, update, findById, deleteAllUsers };
+    return { create, listAll, update, findById, deleteAll };
 }

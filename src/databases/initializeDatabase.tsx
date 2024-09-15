@@ -6,9 +6,7 @@ export async function initializeDatabase(database: SQLiteDatabase) {
             CREATE TABLE IF NOT EXISTS users (
                 id INTEGER PRIMARY KEY,
                 username TEXT NOT NULL,
-                password TEXT,
-                cnpj TEXT,
-                device TEXT
+                password TEXT NOT NULL
             );
             CREATE TABLE IF NOT EXISTS vehicles (
                 id INTEGER NOT NULL,

@@ -13,6 +13,7 @@ import { api } from "../api/api";
 import { Loading } from "../components/loading";
 import { Feather } from "@expo/vector-icons";
 import colors from "tailwindcss/colors";
+import { useVehiclesDatabase } from "../databases/vehicles/useVehiclesDatabase";
 
 export default function InitialConfig() {
     const router = useRouter();
@@ -28,6 +29,7 @@ export default function InitialConfig() {
 
     const userDatabase = useUsersDatabase();
     const deviceDatabase = useDeviceDatabase();
+    const vehicleDatabase = useVehiclesDatabase();
 
     const deviceId = `${Device.osInternalBuildId.replace(/[-.,_]/g, "")}${Device.totalMemory}${Device.platformApiLevel}`;
 
@@ -84,17 +86,16 @@ export default function InitialConfig() {
     async function handleGetActiveDevice() {
         try {
             const device = await deviceDatabase.listDevice();
-            console.log(device);
 
             // Se dentro do banco estiver alguma informação, seta no Estado
             if (device.length > 0) {
-                const [deviceResponse, usersResponse] = await Promise.all([
+                const [deviceResponse, fetchResponse] = await Promise.all([
                     api.post("/api/mobile/user", {
                         md5: device[0].device,
                         cnpj: device[0].cnpj
                     }),
 
-                    api.get(`/api/mobile/users/${device[0].device}`)
+                    api.get(`/api/mobile/fetch/${device[0].device}`)
                 ]);
 
                 setLoading(true);
@@ -104,27 +105,45 @@ export default function InitialConfig() {
 
                 if (deviceResponse.data.ativo === 'S') {
                     setIsActive(true);
-                    await userDatabase.deleteAllUsers();
 
-                    for (let i = 0; usersResponse.data.length > i; i++) {
-                        let user = await userDatabase.findById(usersResponse.data[i].id);
-                        console.log(user);
+                    for (let i = 0; fetchResponse.data.users.length > i; i++) {
+                        let user = await userDatabase.findById(fetchResponse.data.users[i].id);
 
                         if (user.length > 0) {
                             await userDatabase.update({
-                                id: usersResponse.data[i].id, 
-                                username: usersResponse.data[i].username, 
-                                password: usersResponse.data[i].password
+                                id: Number(fetchResponse.data.users[i].id), 
+                                username: fetchResponse.data.users[i].username, 
+                                password: fetchResponse.data.users[i].password
                             });
                         } else {
                             await userDatabase.create({
-                                id: usersResponse.data[i].id, 
-                                username: usersResponse.data[i].username, 
-                                password: usersResponse.data[i].password
+                                id: Number(fetchResponse.data.users[i].id), 
+                                username: fetchResponse.data.users[i].username, 
+                                password: fetchResponse.data.users[i].password
                             });
                         }
 
                     }
+
+                    for (let i = 0; fetchResponse.data.vehicles.length > i; i++) {
+                        let vehicle = await vehicleDatabase.findById(fetchResponse.data.vehicles[i].id);
+
+                        if (vehicle.length > 0) {
+                            await vehicleDatabase.update({
+                                id: Number(fetchResponse.data.vehicles[i].id), 
+                                model: fetchResponse.data.vehicles[i].model, 
+                                license_plate: fetchResponse.data.vehicles[i].license_plate
+                            });
+                        } else {
+                            await vehicleDatabase.create({
+                                id: Number(fetchResponse.data.vehicles[i].id), 
+                                model: fetchResponse.data.vehicles[i].model, 
+                                license_plate: fetchResponse.data.vehicles[i].license_plate
+                            });
+                        }
+
+                    }
+
                 }
 
                 setLoading(false);

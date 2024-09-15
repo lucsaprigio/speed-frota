@@ -5,8 +5,8 @@ import { TouchableOpacity, TouchableOpacityProps } from "react-native-gesture-ha
 import colors from "tailwindcss/colors";
 
 type Props = TouchableOpacityProps & {
-    description: string;
-    plate: string;
+    description: String;
+    plate: String;
 }
 
 export function ServiceCard({ description, plate, ...rest }: Props) {
