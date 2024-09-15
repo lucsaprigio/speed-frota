@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "speed-frota",
+    "name": "Speed Frota",
     "slug": "speed-frota",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -10,7 +10,7 @@
     "splash": {
       "image": "./assets/images/splash.png",
       "resizeMode": "contain",
-      "backgroundColor": "#EEF4ED"
+      "backgroundColor": "#172554"
     },
     "ios": {
       "supportsTablet": true
@@ -18,7 +18,7 @@
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
-        "backgroundColor": "#EEF4ED",
+        "backgroundColor": "#172554",
         "permissions": [
           "RECEIVE_BOOT_COMPLETED"
         ]

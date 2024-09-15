@@ -4,36 +4,54 @@ export type UserDatabase = {
     id: Number;
     username: String;
     email?: String;
-    cnpj: String;
+    cnpj?: String;
     password: String;
-    device: String;
+    device?: String;
 }
 
 export function useUsersDatabase() {
     const database = useSQLiteContext();
 
-    async function create(data: Omit<UserDatabase, "id" >) {
+    async function create(data: UserDatabase) {
         const statement = await database.prepareAsync(
-            'INSERT INTO users (username, password, cnpj, device) VALUES ($username, $password, $cnpj, $device);'
+            'INSERT INTO users (id, username, password, cnpj, device) VALUES ($id, $username, $password, $cnpj, $device);'
         );
 
         try {
-            const result = await statement.executeAsync({
+            await statement.executeAsync({
+                $id: data.id,
                 $username: data.username,
-                $password: data.password,
-                $cnpj: data.cnpj,
-                $device: data.device,
+                $password: data.password
             });
 
-            const insertedRowId = result.lastInsertRowId.toLocaleString();
+            console.log(`Usuário ${data.username} cadastrado.`);
 
-            return { insertedRowId };
         } catch (error) {
             throw error;
         } finally {
             await statement.finalizeAsync();
         }
     };
+
+    async function update(data: UserDatabase) {
+        const statement = await database.prepareAsync(
+            `UPDATE users SET username = $username, password = $password WHERE id = $id`
+        );
+
+        try {
+            await statement.executeAsync({
+                $id: data.id,
+                $username: data.username,
+                $password: data.password,
+            });
+
+            console.log(`Usuário ${data.username} atualizado.`);
+        } catch (error) {
+            throw error;
+        } finally {
+            await statement.finalizeAsync();
+        }
+    }
 
     async function listAll() {
         try {
@@ -59,5 +77,20 @@ export function useUsersDatabase() {
         }
     }
 
-    return { create, listAll, findById };
+    async function deleteAllUsers() {
+        const statement = await database.prepareAsync(
+            'DELETE FROM users;'
+        );
+
+        try {
+            await statement.executeAsync();
+
+        } catch (error) {
+            throw error;
+        } finally {
+            await statement.finalizeAsync();
+        }
+    }
+
+    return { create, listAll, update, findById, deleteAllUsers };
 }

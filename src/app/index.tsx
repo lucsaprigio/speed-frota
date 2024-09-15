@@ -6,8 +6,6 @@ import { Button } from "../components/button";
 import { useEffect, useState } from "react";
 import { useRouter } from "expo-router";
 import * as Device from 'expo-device';
-
-import { useForm } from 'react-hook-form';
 import { useUsersDatabase } from "../databases/users/useUsersDatabase";
 import { TextMaskInput } from "../components/input-mask";
 import { DeviceDatabase, useDeviceDatabase } from "../databases/devices/useDeviceDatabase";
@@ -15,7 +13,6 @@ import { api } from "../api/api";
 import { Loading } from "../components/loading";
 import { Feather } from "@expo/vector-icons";
 import colors from "tailwindcss/colors";
-import { taskFetch } from "../tasks/backgroundFetch";
 
 export default function InitialConfig() {
     const router = useRouter();
@@ -27,50 +24,54 @@ export default function InitialConfig() {
     const [showModal, setShowModal] = useState(false);
     const [deviceInfo, setDeviceInfo] = useState<DeviceDatabase>({} as DeviceDatabase);
     const [isActive, setIsActive] = useState(false);
+    const [buttonEnabled, setButtonEnabled] = useState(true);
 
     const userDatabase = useUsersDatabase();
     const deviceDatabase = useDeviceDatabase();
 
-    const device = `${Device.osInternalBuildId.replace(/[-.,_]/g, "")}${Device.totalMemory}${Device.platformApiLevel}`;
+    const deviceId = `${Device.osInternalBuildId.replace(/[-.,_]/g, "")}${Device.totalMemory}${Device.platformApiLevel}`;
 
     async function create() {
         try {
             setLoading(true);
+            setButtonEnabled(false);
 
-            if(username === '') {
+            await deviceDatabase.deleteAllDevices();
+
+            if (username === '') {
                 Alert.alert("O nome de usuário é obrigatório!");
                 setLoading(false);
                 return;
             }
 
-            if(cnpj.length < 14) {
+            if (cnpj.length < 14) {
                 Alert.alert("CNPJ inválido!");
                 setLoading(false);
                 return;
             }
 
-            await userDatabase.create({ username: username.toUpperCase(), cnpj, password: "123456", device });
-
             const response = await api.post("/api/mobile/", {
                 cnpj: cnpj.replace(/[./-]/g, ""),
-                md5: device
+                md5: deviceId
             });
 
             if (response.status === 200) {
-                await deviceDatabase.createDevice({ id: '1', device, cnpj: cnpj.replace(/[./-]/g, "") });
+                await deviceDatabase.createDevice({ id: '1', device: deviceId, cnpj: cnpj.replace(/[./-]/g, "") });
             }
 
-            Alert.alert("Cadastro realizado com sucesso!", "Suas informações foram salvas.", [
+            Alert.alert("Cadastro realizado com sucesso!", "Suas informações foram enviadas! Vamos notificar assim que você estiver com acesso ao aplicativo.", [
                 {
                     text: "Ok",
-                    onPress: () => router.push('/signin')
                 }
             ]);
 
             setLoading(false);
+            setCnpj('');
+            setUsername('');
 
         } catch (error) {
             setLoading(false);
+            setButtonEnabled(true);
             console.log(error);
             Alert.alert("Ocorreu um erro!", "Verifique as informaçções fornecidas novamente.", [
                 {
@@ -83,35 +84,65 @@ export default function InitialConfig() {
     async function handleGetActiveDevice() {
         try {
             const device = await deviceDatabase.listDevice();
+            console.log(device);
 
+            // Se dentro do banco estiver alguma informação, seta no Estado
             if (device.length > 0) {
+                const [deviceResponse, usersResponse] = await Promise.all([
+                    api.post("/api/mobile/user", {
+                        md5: device[0].device,
+                        cnpj: device[0].cnpj
+                    }),
+
+                    api.get(`/api/mobile/users/${device[0].device}`)
+                ]);
+
                 setLoading(true);
                 setShowModal(true);
+                setButtonEnabled(false);
                 setDeviceInfo(device[0]);
 
-                const response = await api.post("/api/mobile/user", {
-                    md5: device[0].device,
-                    cnpj: device[0].cnpj
-                });
-
-                console.log(response.data.ativo)
-
-                if (response.data.ativo === 'S') {
+                if (deviceResponse.data.ativo === 'S') {
                     setIsActive(true);
+                    await userDatabase.deleteAllUsers();
+
+                    for (let i = 0; usersResponse.data.length > i; i++) {
+                        let user = await userDatabase.findById(usersResponse.data[i].id);
+                        console.log(user);
+
+                        if (user.length > 0) {
+                            await userDatabase.update({
+                                id: usersResponse.data[i].id, 
+                                username: usersResponse.data[i].username, 
+                                password: usersResponse.data[i].password
+                            });
+                        } else {
+                            await userDatabase.create({
+                                id: usersResponse.data[i].id, 
+                                username: usersResponse.data[i].username, 
+                                password: usersResponse.data[i].password
+                            });
+                        }
+
+                    }
                 }
 
                 setLoading(false);
             }
 
         } catch (error) {
-            console.log(error);
-            setLoading(true);
+            if (error.response) {
+                Alert.alert("Ocorreu um erro! ❌", `${error.response.data} \nTente realizar o cadastro novamente.`)
+            } else {
+                Alert.alert("Ocorreu um erro interno! ❌", `${error}`);
+            }
+            setLoading(false);
         }
     }
 
     useEffect(() => {
         handleGetActiveDevice();
-    }, []);
+    }, [buttonEnabled]);
 
     return (
         <>
@@ -159,7 +190,7 @@ export default function InitialConfig() {
                     <ScrollView>
                         <Input
                             title="MD5"
-                            value={device}
+                            value={deviceId}
                             keyboardType="number-pad"
                             editable
                         />
@@ -182,7 +213,7 @@ export default function InitialConfig() {
                         />
 
                         <View className="mt-5 px-4 space-y-2">
-                            <Button onPress={create} disabled={isActive}>
+                            <Button onPress={create} disabled={!buttonEnabled}>
                                 <Button.Text>
                                     {
                                         loading === true ? (<Loading />) : (<Text>Cadastrar</Text>)

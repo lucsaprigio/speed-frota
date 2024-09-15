@@ -59,5 +59,19 @@ export function useDeviceDatabase() {
         }
     }
 
-    return { createDevice, listDevice, updateDevice };
+    async function deleteAllDevices() {
+        const statement = await database.prepareAsync(
+            `DELETE FROM devices;`
+        );
+        try {
+            await statement.executeAsync();
+
+        } catch (error) {
+            throw error;
+        } finally {
+            await statement.finalizeAsync();
+        }
+    }
+ 
+    return { createDevice, listDevice, updateDevice, deleteAllDevices };
 }

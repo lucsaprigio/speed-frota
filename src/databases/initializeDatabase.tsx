@@ -4,7 +4,7 @@ export async function initializeDatabase(database: SQLiteDatabase) {
     try {
         await database.execAsync(`
             CREATE TABLE IF NOT EXISTS users (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                id INTEGER PRIMARY KEY,
                 username TEXT NOT NULL,
                 password TEXT,
                 cnpj TEXT,
@@ -27,6 +27,8 @@ export async function initializeDatabase(database: SQLiteDatabase) {
                 id INTEGER NOT NULL,
                 device TEXT,
                 user_id INTEGER NOT NULL,
+                sessionAt DATE,
+                sessionLimit DATE,
                 FOREIGN KEY (user_id) REFERENCES users(id)
             );
             CREATE TABLE IF NOT EXISTS devices (
