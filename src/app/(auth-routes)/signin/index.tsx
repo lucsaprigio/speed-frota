@@ -23,20 +23,24 @@ export default function SignIn() {
 
     async function handleSignIn(id?: string, password?: string) {
         try {
-            // promise.all
-/*             const response = await userDatabase.findById(id.toString());
 
-            if (password === '') {
+            // const localDate = getLocal
+
+             const response = await userDatabase.findById(id.toString());
+            //  const session = await sessionDatabase.create()
+
+ /*            if (password === '') {
                 Alert.alert("Favor digite sua senha.")
             }
 
             if (response[0].password === password) {
-                // fazer o login
+
             } else {
                 Alert.alert("Senha incorreta.");
-            } */
+            }  */
 
-            return router.push("/home");
+            // return router.push("/home");
+            console.log(new Date().toISOString());
 
         } catch (error) {
             console.log(error);

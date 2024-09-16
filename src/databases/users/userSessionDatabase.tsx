@@ -4,14 +4,15 @@ export type UserSessionDatabase = {
     id: string;
     device: string;
     user_id: string;
-
+    sessionEnd: string;
 }
+
 export function userSessionDatabase() {
     const database = useSQLiteContext();
 
     async function create(data: UserSessionDatabase) {
         const statement = await database.prepareAsync(
-            'INSERT INTO session (id, device, user_id) VALUES ($id, $device, $user_id)'
+            'INSERT INTO session (id, device, user_id, sessionEnd) VALUES ($id, $device, $user_id, $sessionEnd)'
         );
 
         try {
@@ -20,6 +21,7 @@ export function userSessionDatabase() {
                 $id: data.id,
                 $device: data.device,
                 $user_id: data.user_id,
+                $sessionEnd: data.sessionEnd
             });
 
             return result;
@@ -32,7 +34,7 @@ export function userSessionDatabase() {
 
     async function update(data: UserSessionDatabase) {
         const statement = await database.prepareAsync(
-            'UPDATE session SET device = $device, user_id = $user_id, id = 1 WHERE id = $id'
+            'UPDATE session SET device = $device, user_id = $user_id, id = 1, sessionEnd = $sessionEnd WHERE id = $id'
         );
 
         try {
@@ -41,6 +43,7 @@ export function userSessionDatabase() {
                 $id: data.id,
                 $device: data.device,
                 $user_id: data.user_id,
+                $sessionEnd: data.sessionEnd
             });
 
         } catch (error) {
@@ -62,5 +65,17 @@ export function userSessionDatabase() {
         }
     }
 
-    return { create, update, find };
+    async function deleteSession() {
+        const statement = await database.prepareAsync('DELETE FROM session');
+
+        try {
+            await statement.executeAsync();
+        } catch (error) {
+            throw error;
+        } finally {
+            await statement.finalizeAsync();
+        }
+    }
+
+    return { create, update, find , deleteSession};
 }

@@ -19,14 +19,14 @@ export async function initializeDatabase(database: SQLiteDatabase) {
                 price REAL NOT NULL,
                 vehicle_id INTEGER NOT NULL,
                 obs TEXT NOT NULL,
+                sent TEXT,
                 FOREIGN KEY (vehicle_id) REFERENCES vehicles(id)
             );
             CREATE TABLE IF NOT EXISTS session (
                 id INTEGER NOT NULL,
                 device TEXT,
                 user_id INTEGER NOT NULL,
-                sessionAt DATE,
-                sessionLimit DATE,
+                sessionEnd TEXT,
                 FOREIGN KEY (user_id) REFERENCES users(id)
             );
             CREATE TABLE IF NOT EXISTS devices (
