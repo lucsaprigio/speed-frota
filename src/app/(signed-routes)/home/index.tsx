@@ -1,13 +1,14 @@
-import { Feather } from "@expo/vector-icons";
 import { useEffect, useState } from "react";
-import { FlatListComponent, KeyboardAvoidingView, ScrollView, Text, View } from "react-native";
-import { FlatList, GestureHandlerRootView, TouchableOpacity } from "react-native-gesture-handler";
-import { SafeAreaView } from "react-native-safe-area-context";
-import colors from "tailwindcss/colors";
-import { formatDate } from "../../../utils/functions/dateFormatted";
-import { ServiceCard } from "@/src/components/service-card";
+import { Alert, BackHandler, ScrollView, Text, View } from "react-native";
+import { GestureHandlerRootView, TouchableOpacity } from "react-native-gesture-handler";
 import { useRouter } from "expo-router";
+import { Feather } from "@expo/vector-icons";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { ServiceCard } from "@/src/components/service-card";
 import { useVehiclesDatabase, VehiclesDatabase } from "@/src/databases/vehicles/useVehiclesDatabase";
+import { formatDate } from "../../../utils/functions/dateFormatted";
+
+import colors from "tailwindcss/colors";
 
 export default function Home() {
     const router = useRouter();
@@ -16,6 +17,7 @@ export default function Home() {
     const [weekDay, setWeekday] = useState('');
     const [month, setMonth] = useState('');
     const [vehicles, setVehicles] = useState<VehiclesDatabase[]>([]);
+
 
     const vehicleDatabase = useVehiclesDatabase();
 
@@ -41,9 +43,32 @@ export default function Home() {
         return router.push({ pathname: "/service", params: { carId, plate, description } });
     }
 
+    function handleSignOut() {
+        Alert.alert("Deseja sair da aplicação?", "", [
+            {
+                text: "Sair",
+                onPress: () => { router.push("/signin") }
+            },
+            {
+                text: "Cancelar",
+                style: "cancel"
+            }
+        ])
+    }
+ 
     useEffect(() => {
         handleGetDate();
         listVehicles();
+
+        const disableBackHandler = () => {
+            return true;
+        };
+
+        BackHandler.addEventListener('hardwareBackPress', disableBackHandler);
+
+        return () => {
+            BackHandler.removeEventListener('hardwareBackPress', disableBackHandler);
+        };
     }, []);
 
     return (
@@ -59,7 +84,7 @@ export default function Home() {
                             <Text className="text-sm text-gray-100">{weekDay}, {day} de {month}</Text>
                         </View>
                     </View>
-                    <TouchableOpacity className="flex items-center justify-center">
+                    <TouchableOpacity className="flex items-center justify-center" onPress={handleSignOut}>
                         <Feather name="log-out" size={28} color={colors.gray[100]} />
                     </TouchableOpacity>
                 </SafeAreaView>

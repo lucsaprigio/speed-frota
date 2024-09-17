@@ -1,4 +1,4 @@
-import { Alert, Image, Text, View } from "react-native";
+import { Alert, BackHandler, Image, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import LogoImg from "../../../../assets/images/logo-speed-branco.png";
 import { Input } from "../../../components/input";
@@ -21,26 +21,22 @@ export default function SignIn() {
     const userDatabase = useUsersDatabase();
     const sessionDatabase = userSessionDatabase();
 
-    async function handleSignIn(id?: string, password?: string) {
+    async function handleSignIn(id?: string) {
         try {
-
-            // const localDate = getLocal
-
-             const response = await userDatabase.findById(id.toString());
+            const response = await userDatabase.findById(id.toString());
             //  const session = await sessionDatabase.create()
 
- /*            if (password === '') {
-                Alert.alert("Favor digite sua senha.")
+            if (password === '') {
+                Alert.alert("Favor digite sua senha.");
+                return
             }
-
+            
             if (response[0].password === password) {
-
+                return router.push("/home");
             } else {
                 Alert.alert("Senha incorreta.");
-            }  */
-
-            // return router.push("/home");
-            console.log(new Date().toISOString());
+                console.log(password)
+            }
 
         } catch (error) {
             console.log(error);
@@ -60,6 +56,16 @@ export default function SignIn() {
 
     useEffect(() => {
         listUsers();
+
+        const disableBackHandler = () => {
+            return true;
+        };
+
+        BackHandler.addEventListener('hardwareBackPress', disableBackHandler);
+
+        return () => {
+            BackHandler.removeEventListener('hardwareBackPress', disableBackHandler);
+        };
     }, [userId]);
 
     return (
@@ -75,7 +81,6 @@ export default function SignIn() {
                         selectedValue={userId}
                         onValueChange={(item: string) => {
                             setUserId(item)
-                            console.log(userId)
                         }}
                         placeholder="Selecione o operador"
                     >
@@ -90,8 +95,9 @@ export default function SignIn() {
                     placeholder="Digite sua senha"
                     light
                     inputPassword
-                    value={password}
                     onChangeText={setPassword}
+                    value={password}
+                    keyboardType="number-pad"
                 />
                 <View className="w-full">
                     <Button light onPress={() => handleSignIn(userId)}>

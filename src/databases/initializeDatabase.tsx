@@ -19,6 +19,7 @@ export async function initializeDatabase(database: SQLiteDatabase) {
                 price REAL NOT NULL,
                 vehicle_id INTEGER NOT NULL,
                 obs TEXT NOT NULL,
+                image BLOB,
                 sent TEXT,
                 FOREIGN KEY (vehicle_id) REFERENCES vehicles(id)
             );
