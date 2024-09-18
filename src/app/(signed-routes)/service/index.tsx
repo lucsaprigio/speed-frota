@@ -2,12 +2,12 @@ import { useState, useRef } from "react";
 import { SafeAreaView, ScrollView, Text, TouchableOpacity, View, StyleSheet } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { CameraView, CameraType, useCameraPermissions, Camera } from "expo-camera";
+import { CameraView, CameraType, useCameraPermissions } from "expo-camera";
 import { Picker } from "@react-native-picker/picker";
 
 import { Button } from "@/src/components/button";
 import { Input } from "../../../components/input";
-import { Feather } from "@expo/vector-icons";
+import { Feather, FontAwesome, MaterialCommunityIcons } from "@expo/vector-icons";
 import { TextMaskInput } from "@/src/components/input-mask";
 
 
@@ -24,6 +24,7 @@ export default function Service() {
     const [price, setPrice] = useState("");
     const [obs, setObs] = useState("");
     const [showModal, setShowModal] = useState(false);
+    const [imageModal, setImageModal] = useState(false);
     const [serviceId, setServiceId] = useState('');
     const [facing, setFacing] = useState<CameraType>('back');
     const [permission, requestPermission] = useCameraPermissions();
@@ -50,10 +51,9 @@ export default function Service() {
 
     async function takePicture() {
         if (cameraRef && cameraRef.current) {
-            const data = await cameraRef.current.takePictureAsync({ base64: true });
-            console.log(data);
+            const data = await cameraRef.current.takePictureAsync();
             setCapturedPhoto(data.uri);
-            setShowModal(false);
+            setImageModal(true);
         }
     }
 
@@ -75,6 +75,23 @@ export default function Service() {
                         </View>
                     ) : (
                         <View className="flex-1 bg-blue-950">
+                            <Modal visible={imageModal} animationType="slide" transparent>
+                                <View className="flex-1 items-between justify-center" style={{ backgroundColor: 'rgba(0, 0, 0, 0.9)' }}>
+                                    <View className="flex  items-center justify-between m-6">
+                                        <View className="flex flex-row space-x-6">
+                                            <TouchableOpacity className="flex-1 items-center w-20 bg-blue-950 p-2 rounded-md" onPress={() => { setShowModal(false), setImageModal(false) }}>
+                                                <FontAwesome name="save" color={colors.gray[50]} size={36} />
+                                            </TouchableOpacity>
+                                            <TouchableOpacity className="flex-1 items-center bg-blue-950 p-2 rounded-md" onPress={() => setImageModal(false)}>
+                                                <Feather name="x-circle" color={colors.gray[50]} size={36} />
+                                            </TouchableOpacity>
+                                        </View>
+                                        <View className="w-full m-3">
+                                            <Image source={{ uri: capturedPhoto }} resizeMode="contain" style={{ width: "100%", height: 450, borderRadius: 20 }} />
+                                        </View>
+                                    </View>
+                                </View>
+                            </Modal>
                             <CameraView ref={cameraRef} style={styles.camera} facing={facing}>
                                 <View className="flex flex-row items-center justify-between p-3">
                                     <TouchableOpacity onPress={toggleCameraFacing} activeOpacity={0.7}>
@@ -88,10 +105,10 @@ export default function Service() {
                             <TouchableOpacity className="flex items-center justify-center rounded-full p-2 m-3" onPress={takePicture}>
                                 <Feather name="camera" color={colors.gray[50]} size={40} />
                             </TouchableOpacity>
-                        </View>
+                        </View >
                     )
                 }
-            </Modal>
+            </Modal >
             <GestureHandlerRootView>
                 <SafeAreaView className="flex flex-row justify-between bg-blue-950 py-14 px-4 shadow-sm">
                     <TouchableOpacity className="flex items-center justify-center" onPress={() => router.back()}>
@@ -163,8 +180,12 @@ export default function Service() {
                                     </View>
                                 </TouchableOpacity>
                             ) : (
-                                <View className="flex items-center justify-center">
+                                <View className="flex items-center justify-center space-y-3">
                                     <Image source={{ uri: capturedPhoto }} resizeMode="contain" style={{ width: "100%", height: 300, borderRadius: 20 }} />
+                                    <TouchableOpacity className="flex items-center p-3 border-[1px] border-blue-950 rounded-md" onPress={() => setShowModal(true)}>
+                                        <Feather name="camera" size={24} color={colors.blue[950]} />
+                                        <Text>Capturar novamente</Text>
+                                    </TouchableOpacity>
                                 </View>
                             )
                         }

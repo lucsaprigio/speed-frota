@@ -15,9 +15,9 @@ module.exports = {
   },
   colors: {
     background: {
-      primary: '#E1E1E6'
+      primary: '#E1E1E6',
+      blackshadow: 'rgba(0,0,0, 0.8)',
     },
-    blackshadow: 'rgba(0,0,0, 0.8)',
     primary: {
       700: '#92A0AD'
     },
