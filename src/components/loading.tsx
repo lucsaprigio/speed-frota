@@ -1,8 +1,6 @@
-import { Text } from "react-native";
 import { ActivityIndicator, View } from "react-native";
 
 import colors from "tailwindcss/colors";
-
 
 export function Loading() {
     return (

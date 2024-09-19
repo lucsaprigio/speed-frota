@@ -1,7 +1,8 @@
 import { useSQLiteContext } from "expo-sqlite";
 
 export type UserSessionDatabase = {
-    id: string;
+    id: number;
+    username: string;
     device: string;
     user_id: string;
     sessionEnd: string;
@@ -12,7 +13,7 @@ export function userSessionDatabase() {
 
     async function create(data: UserSessionDatabase) {
         const statement = await database.prepareAsync(
-            'INSERT INTO session (id, device, user_id, sessionEnd) VALUES ($id, $device, $user_id, $sessionEnd)'
+            'INSERT INTO session (id, device, username, user_id, sessionEnd) VALUES ($id, $device, $username, $user_id, $sessionEnd)'
         );
 
         try {
@@ -20,6 +21,7 @@ export function userSessionDatabase() {
             const result = await statement.executeAsync({
                 $id: data.id,
                 $device: data.device,
+                $username: data.username,
                 $user_id: data.user_id,
                 $sessionEnd: data.sessionEnd
             });

@@ -8,7 +8,7 @@ import { useRouter } from "expo-router";
 import { useUsersDatabase, UserDatabase } from "@/src/databases/users/useUsersDatabase";
 import { Picker } from "@react-native-picker/picker";
 import { userSessionDatabase } from "@/src/databases/users/userSessionDatabase";
-
+import * as Device from 'expo-device';
 
 export default function SignIn() {
     const router = useRouter();
@@ -16,21 +16,31 @@ export default function SignIn() {
     const [password, setPassword] = useState("");
     const [userId, setUserId] = useState("");
     const [users, setUsers] = useState<UserDatabase[]>([]);
-    const [user, setUser] = useState({} as UserDatabase);
 
     const userDatabase = useUsersDatabase();
     const sessionDatabase = userSessionDatabase();
 
+    const deviceId = `${Device.osInternalBuildId.replace(/[-.,_]/g, "")}${Device.totalMemory}${Device.platformApiLevel}`;
+
     async function handleSignIn(id?: string) {
         try {
             const response = await userDatabase.findById(id.toString());
-            //  const session = await sessionDatabase.create()
+            console.log(response[0].username);
+            await sessionDatabase.deleteSession();
+
+            await sessionDatabase.create({
+                id: 1,
+                device: deviceId,
+                sessionEnd: '09-19-2024',
+                user_id: id,
+                username: response[0].username
+            });
 
             if (password === '') {
                 Alert.alert("Favor digite sua senha.");
                 return
             }
-            
+
             if (response[0].password === password) {
                 return router.push("/home");
             } else {
@@ -79,8 +89,8 @@ export default function SignIn() {
                     <Picker
                         mode="dialog"
                         selectedValue={userId}
-                        onValueChange={(item: string) => {
-                            setUserId(item)
+                        onValueChange={(itemIndex: string) => {
+                            setUserId(itemIndex);
                         }}
                         placeholder="Selecione o operador"
                     >

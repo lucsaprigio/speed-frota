@@ -1,5 +1,5 @@
-import { useState, useRef } from "react";
-import { SafeAreaView, ScrollView, Text, TouchableOpacity, View, StyleSheet } from "react-native";
+import { useState, useRef, useEffect } from "react";
+import { SafeAreaView, ScrollView, Text, TouchableOpacity, View, StyleSheet, Alert } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { CameraView, CameraType, useCameraPermissions } from "expo-camera";
@@ -7,13 +7,15 @@ import { Picker } from "@react-native-picker/picker";
 
 import { Button } from "@/src/components/button";
 import { Input } from "../../../components/input";
-import { Feather, FontAwesome, MaterialCommunityIcons } from "@expo/vector-icons";
+import { Feather, FontAwesome } from "@expo/vector-icons";
 import { TextMaskInput } from "@/src/components/input-mask";
 
 
 import colors from "tailwindcss/colors";
 import { Modal } from "react-native";
 import { Image } from "react-native";
+import { FleetDatabase, useFleetsDatabase } from "@/src/databases/fleets/useFleetsDatabase";
+import { TypeServiceDatabase, useTypeServicesDatabase } from "@/src/databases/type-service/useTypeServicesDatabase";
 
 
 export default function Service() {
@@ -25,28 +27,43 @@ export default function Service() {
     const [obs, setObs] = useState("");
     const [showModal, setShowModal] = useState(false);
     const [imageModal, setImageModal] = useState(false);
-    const [serviceId, setServiceId] = useState('');
+    const [serviceDescription, setServiceDescription] = useState('');
     const [facing, setFacing] = useState<CameraType>('back');
     const [permission, requestPermission] = useCameraPermissions();
     const [capturedPhoto, setCapturedPhoto] = useState<string | null>(null);
+    const [typeServices, setTypeServices] = useState<TypeServiceDatabase[]>([]);
 
-    const services = [
-        {
-            id: "1",
-            name: "Abastecimento",
-        },
-        {
-            id: "2",
-            name: "Manutenção",
+    const fleetsDatabase = useFleetsDatabase();
+    const typeService = useTypeServicesDatabase();
+
+    async function getTypeServices() {
+        try {
+            const response = await typeService.listAllTypeService();
+
+            setTypeServices(response);
+        } catch (error) {
+            Alert.alert('Ocorreu um erro', `${error}`)
         }
-    ]
+    }
 
     function toggleCameraFacing() {
         setFacing(current => (current === 'back' ? 'front' : 'back'));
     }
 
-    function handleSaveService() {
-        return console.log(carId, plate, description, price, obs, serviceId)
+    async function handleSaveService(data: Omit<FleetDatabase, "id">) {
+        try {
+            const response = await fleetsDatabase.createFleet({
+                description: data.description,
+                price: Number(data.price),
+                vehicle_id: Number(carId),
+                obs: obs,
+                sent: data.sent
+            });
+
+            return Alert.alert('Frota registrada com sucesso', `Frota: ${response} registrada!`);
+        } catch (error) {
+            Alert.alert('Ocorreu um erro', `${error}`)
+        }
     }
 
     async function takePicture() {
@@ -56,6 +73,10 @@ export default function Service() {
             setImageModal(true);
         }
     }
+
+    useEffect(() => {
+        getTypeServices();
+    }, []);
 
     return (
         <>
@@ -126,15 +147,15 @@ export default function Service() {
                     <View className="border-[1px] border-blue-950 rounded-md px-1 mx-7" >
                         <Picker
                             mode="dialog"
-                            selectedValue={serviceId}
+                            selectedValue={serviceDescription}
                             onValueChange={(item: string) => {
-                                setServiceId(item)
+                                setServiceDescription(item)
                             }}
                             placeholder="Selecione o operador"
                         >
                             {
-                                services.map((user) => (
-                                    <Picker.Item key={user?.id} label={user.name} value={user.id} />
+                                typeServices && typeServices.map((service) => (
+                                    <Picker.Item key={service.id} label={service.description} value={service.description} />
                                 ))
                             }
                         </Picker>
@@ -192,7 +213,7 @@ export default function Service() {
                     </View>
                 </ScrollView>
                 <View className="fixed bottom-0 p-6">
-                    <Button onPress={handleSaveService}>
+                    <Button onPress={() => { handleSaveService({ description: serviceDescription, price: Number(price), obs: obs, sent: 'N', vehicle_id: Number(carId) }) }}>
                         <Button.Text>
                             Registrar
                         </Button.Text>
