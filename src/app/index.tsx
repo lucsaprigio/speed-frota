@@ -150,7 +150,7 @@ export default function InitialConfig() {
 
         } catch (error) {
             if (error.response) {
-                Alert.alert("Ocorreu um erro! ❌", `${error.response.data} \nTente realizar o cadastro novamente.`)
+                Alert.alert("Atenção!! ⚠️ ", `${error.response.data} \nRelize seu cadastro para continuar.`)
             } else {
                 Alert.alert("Ocorreu um erro interno! ❌", `${error}`);
             }
@@ -160,6 +160,9 @@ export default function InitialConfig() {
 
     useEffect(() => {
         handleGetActiveDevice();
+        setTimeout(() => {
+            handleGetActiveDevice();
+        }, 600000);
     }, [buttonEnabled]);
 
     return (
@@ -175,7 +178,7 @@ export default function InitialConfig() {
                                 <Text className="font-heading text-lg text-center">Encontramos informações cadastradas no seu dispositivo</Text>
                                 <Text className="font-body">CNPJ - {deviceInfo.cnpj}</Text>
                                 <Text className="font-body">Dispositivo - {deviceInfo.device}</Text>
-                                {isActive && <Text className="text-green-500 text-lg font-heading">Este dispositivo está ativo ✅</Text>}
+                                {isActive ? (<Text className="text-green-500 text-lg font-heading">Este dispositivo está ativo ✅</Text>) : (<Text className="text-lg font-heading">Aguardando responsta 🕑</Text>)}
                                 {
                                     isActive === true ? (
                                         <Button onPress={() => { router.push("/signin") }}>

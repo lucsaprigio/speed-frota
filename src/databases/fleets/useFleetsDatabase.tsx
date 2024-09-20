@@ -9,6 +9,8 @@ export type FleetDatabase = {
     obs?: string
     image?: string,
     sent: string,
+    license_plate?: string;
+    model?: string;
 }
 
 export function useFleetsDatabase() {
@@ -67,7 +69,13 @@ export function useFleetsDatabase() {
 
     async function listAllFleets() {
         try {
-            const query = 'SELECT * FROM fleets';
+            const query = `
+             SELECT 
+                fleets.id, description, price, obs, sent, provider, vehicle_id,
+                vehicles.license_plate, vehicles.model
+             FROM fleets
+             INNER JOIN vehicles on vehicles.id = fleets.vehicle_id
+             `;
 
             const response = await database.getAllAsync<FleetDatabase>(query);
 

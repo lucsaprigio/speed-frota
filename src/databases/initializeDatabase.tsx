@@ -9,7 +9,7 @@ export async function initializeDatabase(database: SQLiteDatabase) {
                 password TEXT NOT NULL
             );
             CREATE TABLE IF NOT EXISTS vehicles (
-                id INTEGER NOT NULL,
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
                 license_plate TEXT NOT NULL,
                 model TEXT NOT NULL
             );

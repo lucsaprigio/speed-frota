@@ -54,10 +54,13 @@ export default function Service() {
 
     async function handleSaveService(data: Omit<FleetDatabase, "id">) {
         try {
+            const real = new Intl.NumberFormat('pt-BR', { minimumFractionDigits: 2 }).format(parseFloat(data.price.toFixed(2)) / 100);
+
             const response = await fleetsDatabase.createFleet({
                 description: data.description,
-                price: Number(data.price),
+                price: Number(real.replace(",", ".")),
                 vehicle_id: Number(carId),
+                provider: provider,
                 obs: obs,
                 sent: data.sent
             });
@@ -66,10 +69,13 @@ export default function Service() {
                 Alert.alert("Por favor, preencha o valor!")
             }
 
-            const real = new Intl.NumberFormat('pt-BR', { minimumFractionDigits: 2 }).format(parseFloat(data.price.toString()) / 100);
-            console.log(real);
-            console.log(data.description, real, carId, obs, data.sent)
-            return Alert.alert('Frota registrada com sucesso', `Frota: ${response.lastInsertedRowId} registrada!`);
+            setPrice("");
+            setObs("");
+            setProvider("");
+
+            return Alert.alert('Frota registrada com sucesso', `Frota: ${response.lastInsertedRowId} registrada!`, [
+                { text: 'Ok', onPress: () => router.back() }
+            ]);
         } catch (error) {
             Alert.alert('Ocorreu um erro', `${error}`)
         }

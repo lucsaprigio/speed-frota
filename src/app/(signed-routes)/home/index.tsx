@@ -125,8 +125,8 @@ export default function Home() {
                     <Text className="text-lg font-heading p-3">Selecione uma das opções abaixo</Text>
                     <View className="flex flex-row flex-wrap items-center justify-start gap-3 mt-8 bg-gray-200">
                         <IconButton
-                            iconName="car-rental"
-                            title="Veículos"
+                            iconName="car-repair"
+                            title="Nova Frota"
                             onPress={() => { router.push("/vehicles") }}
                         />
                         <IconButton

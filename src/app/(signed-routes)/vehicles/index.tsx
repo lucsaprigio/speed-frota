@@ -1,25 +1,20 @@
-import { useEffect, useState } from "react";
-import { BackHandler, ScrollView, Text, TouchableOpacity, View } from "react-native";
+import { useCallback, useEffect, useState } from "react";
+import { ScrollView, Text, TouchableOpacity, View } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
-import { useRouter } from "expo-router";
+import { useFocusEffect, useRouter } from "expo-router";
 import { ServiceCard } from "@/src/components/service-card";
 import { useVehiclesDatabase, VehiclesDatabase } from "@/src/databases/vehicles/useVehiclesDatabase";
 
-import { userSessionDatabase } from "@/src/databases/users/userSessionDatabase";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { Feather } from "@expo/vector-icons";
+import { Feather, MaterialIcons } from "@expo/vector-icons";
+import colors from "tailwindcss/colors";
 
 export default function Vehicles() {
     const router = useRouter();
 
-
-    const [username, setUsername] = useState('');
     const [vehicles, setVehicles] = useState<VehiclesDatabase[]>([]);
 
     const vehicleDatabase = useVehiclesDatabase();
-    const sessionDatabase = userSessionDatabase();
-
-
 
     async function listVehicles() {
         try {
@@ -30,34 +25,14 @@ export default function Vehicles() {
         }
     }
 
-    async function getUserInfo() {
-        try {
-            const response = await sessionDatabase.find();
-
-            setUsername(response[0].username);
-        } catch (error) {
-            console.log(error);
-        }
-    }
-
     function handleGoToCreateService(carId: number, plate: string, description: string) {
         return router.push({ pathname: "/service", params: { carId, plate, description } });
     }
 
-    useEffect(() => {
+    useFocusEffect(useCallback(() => {
         listVehicles();
-        getUserInfo();
-
-        const disableBackHandler = () => {
-            return true;
-        };
-
-        BackHandler.addEventListener('hardwareBackPress', disableBackHandler);
-
-        return () => {
-            BackHandler.removeEventListener('hardwareBackPress', disableBackHandler);
-        };
-    }, [username]);
+    }, [])
+    );
 
     return (
         <GestureHandlerRootView className="bg-gray-100">
@@ -68,9 +43,16 @@ export default function Vehicles() {
                         size={24}
                     />
                 </TouchableOpacity>
-                <Text className="font-heading text-2xl border-b-[1px] border-gray-300">Veículos</Text>
+                <Text className="font-heading text-2xl border-gray-300">Veículos</Text>
             </SafeAreaView>
-            <ScrollView className="px-3">
+            <View className="flex items-center justify-center">
+                <TouchableOpacity className="flex flex-row items-center justify-between bg-blue-950 rounded-full px-4 py-1 m-3" onPress={() => { router.push("/vehicles/new-vehicle") }}>
+                    <MaterialIcons name="add" color={colors.gray[50]} size={18} />
+                    <Text className="text-gray-50">Novo veículo</Text>
+                </TouchableOpacity>
+                <Text className="font-body mt-3">Toque para registrar uma frota</Text>
+            </View>
+            <ScrollView className="px-3 pb-3">
                 {
                     vehicles && vehicles.map((item) => (
                         <ServiceCard
