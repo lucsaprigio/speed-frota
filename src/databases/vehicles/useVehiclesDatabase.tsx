@@ -28,6 +28,28 @@ export function useVehiclesDatabase() {
         }
     };
 
+    async function createAuto(data: Omit<VehiclesDatabase, "id">) {
+        const statement = await database.prepareAsync(
+            'INSERT INTO vehicles (license_plate, model) VALUES ($license_plate, $model);'
+        );
+
+        try {
+            const result = await statement.executeAsync({
+                $license_plate: data.license_plate,
+                $model: data.model
+            });
+
+            const lastInsertedRowId = result.lastInsertRowId.toLocaleString();
+
+            return { lastInsertedRowId };
+
+        } catch (error) {
+            throw error;
+        } finally {
+            await statement.finalizeAsync();
+        }
+    }
+
     async function update(data: VehiclesDatabase) {
         const statement = await database.prepareAsync(
             `UPDATE vehicles SET model = $model, license_plate = $license_plate WHERE id = $id`
@@ -86,5 +108,5 @@ export function useVehiclesDatabase() {
         }
     }
 
-    return { create, listAll, update, findById, deleteAll };
+    return { create, listAll, update, findById, deleteAll, createAuto };
 }
