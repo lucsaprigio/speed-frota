@@ -111,18 +111,17 @@ export default function InitialConfig() {
 
                         if (user.length > 0) {
                             await userDatabase.update({
-                                id: Number(fetchResponse.data.users[i].id), 
-                                username: fetchResponse.data.users[i].username, 
+                                id: Number(fetchResponse.data.users[i].id),
+                                username: fetchResponse.data.users[i].username,
                                 password: fetchResponse.data.users[i].password
                             });
                         } else {
                             await userDatabase.create({
-                                id: Number(fetchResponse.data.users[i].id), 
-                                username: fetchResponse.data.users[i].username, 
+                                id: Number(fetchResponse.data.users[i].id),
+                                username: fetchResponse.data.users[i].username,
                                 password: fetchResponse.data.users[i].password
                             });
                         }
-
                     }
 
                     for (let i = 0; fetchResponse.data.vehicles.length > i; i++) {
@@ -130,14 +129,14 @@ export default function InitialConfig() {
 
                         if (vehicle.length > 0) {
                             await vehicleDatabase.update({
-                                id: Number(fetchResponse.data.vehicles[i].id), 
-                                model: fetchResponse.data.vehicles[i].model, 
+                                id: Number(fetchResponse.data.vehicles[i].id),
+                                model: fetchResponse.data.vehicles[i].model,
                                 license_plate: fetchResponse.data.vehicles[i].license_plate
                             });
                         } else {
                             await vehicleDatabase.create({
-                                id: Number(fetchResponse.data.vehicles[i].id), 
-                                model: fetchResponse.data.vehicles[i].model, 
+                                id: Number(fetchResponse.data.vehicles[i].id),
+                                model: fetchResponse.data.vehicles[i].model,
                                 license_plate: fetchResponse.data.vehicles[i].license_plate
                             });
                         }

@@ -94,6 +94,7 @@ export default function SignIn() {
                         }}
                         placeholder="Selecione o operador"
                     >
+                        <Picker.Item key={0} label="Selecione um usuário" value="" />
                         {
                             users.map((user) => (
                                 <Picker.Item key={user?.id.toString()} label={user.username.toString()} value={user.id} />

@@ -25,6 +25,7 @@ export default function Service() {
 
     const [price, setPrice] = useState("");
     const [obs, setObs] = useState("");
+    const [provider, setProvider] = useState("");
     const [showModal, setShowModal] = useState(false);
     const [imageModal, setImageModal] = useState(false);
     const [serviceDescription, setServiceDescription] = useState('');
@@ -41,6 +42,7 @@ export default function Service() {
             const response = await typeService.listAllTypeService();
 
             setTypeServices(response);
+            setServiceDescription(response[0].description)
         } catch (error) {
             Alert.alert('Ocorreu um erro', `${error}`)
         }
@@ -60,7 +62,14 @@ export default function Service() {
                 sent: data.sent
             });
 
-            return Alert.alert('Frota registrada com sucesso', `Frota: ${response} registrada!`);
+            if (Number(price) <= 0) {
+                Alert.alert("Por favor, preencha o valor!")
+            }
+
+            const real = new Intl.NumberFormat('pt-BR', { minimumFractionDigits: 2 }).format(parseFloat(data.price.toString()) / 100);
+            console.log(real);
+            console.log(data.description, real, carId, obs, data.sent)
+            return Alert.alert('Frota registrada com sucesso', `Frota: ${response.lastInsertedRowId} registrada!`);
         } catch (error) {
             Alert.alert('Ocorreu um erro', `${error}`)
         }
@@ -166,11 +175,19 @@ export default function Service() {
                             placeholder="Escolha o serviço"
                             value={`${description.toString()} - ${plate}`}
                             editable={false}
+                            textEditabled={false}
+                        />
+
+                        <Input
+                            title="Prestador do serviço"
+                            placeholder="Digite o prestador"
+                            value={provider}
+                            onChangeText={setProvider}
                         />
 
                         <Input
                             title="Observação"
-                            placeholder="Obs."
+                            placeholder="Digite uma breve observação"
                             value={obs}
                             onChangeText={setObs}
                         />

@@ -5,6 +5,7 @@ export type FleetDatabase = {
     description: string;
     price: number;
     vehicle_id: number;
+    provider?: string;
     obs?: string
     image?: string,
     sent: string,
@@ -15,7 +16,7 @@ export function useFleetsDatabase() {
 
     async function createFleet(data: Omit<FleetDatabase, "id">) {
         const statement = await database.prepareAsync(
-            'INSERT INTO fleets (description, price, vehicle_id, obs, image, sent) VALUES ($description, $price, $vehicle_id, $obs, $image, $sent);'
+            'INSERT INTO fleets (description, price, vehicle_id, obs, image, provider, sent) VALUES ($description, $price, $vehicle_id, $obs, $image, $provider, $sent);'
         );
 
         try {
@@ -25,6 +26,7 @@ export function useFleetsDatabase() {
                 $vehicle_id: data.vehicle_id,
                 $obs: data.obs,
                 $image: null,
+                $provider: data.provider,
                 $sent: 'N'
             });
 
@@ -41,7 +43,7 @@ export function useFleetsDatabase() {
 
     async function updateFleet(data: FleetDatabase) {
         const statement = await database.prepareAsync(
-            `UPDATE fleets SET description = $description, price =  $price, vehicle_id = $vehicle_id, obs = $obs , sent = $sent WHERE id = $id`
+            `UPDATE fleets SET description = $description, price =  $price, vehicle_id = $vehicle_id, obs = $obs, sent = $sent, provider = $provider WHERE id = $id`
         );
 
 
@@ -53,6 +55,7 @@ export function useFleetsDatabase() {
                 vehicle_id: data.vehicle_id,
                 $obs: data.obs,
                 $sent: data.sent,
+                $provider: data.provider
             });
 
         } catch (error) {

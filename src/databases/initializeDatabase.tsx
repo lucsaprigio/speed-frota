@@ -2,10 +2,6 @@ import { type SQLiteDatabase } from 'expo-sqlite';
 
 export async function initializeDatabase(database: SQLiteDatabase) {
     try {
-         await database.execAsync(`
-            DROP TABLE type_service;
-        `); 
-
         await database.execAsync(`
             CREATE TABLE IF NOT EXISTS users (
                 id INTEGER PRIMARY KEY,
@@ -22,6 +18,7 @@ export async function initializeDatabase(database: SQLiteDatabase) {
                 description TEXT NOT NULL,
                 price REAL NOT NULL,
                 vehicle_id INTEGER NOT NULL,
+                provider TEXT,
                 obs TEXT NOT NULL,
                 image BLOB,
                 sent TEXT,
@@ -43,6 +40,10 @@ export async function initializeDatabase(database: SQLiteDatabase) {
                 id INTEGER NOT NULL,
                 device,
                 cnpj
+            );
+            CREATE TABLE IF NOT EXISTS providers (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                providerName TEXT NOT NULL
             );
         `);
     } catch (error) {

@@ -12,6 +12,7 @@ import { SQLiteProvider } from "expo-sqlite";
 import { initializeDatabase } from "../databases/initializeDatabase";
 import { useEffect } from "react";
 import { taskFetch } from "../tasks/backgroundFetch";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
 
 // Carregar as fontes antes de iniciar a aplicação
 // Obs: Temos que configurar dentro do tailwind.config.js no extend, para fazer junção as fontes com tailwindcss
@@ -32,8 +33,10 @@ export default function Layout() {
 
   return (
     <SQLiteProvider databaseName="speed.db" onInit={initializeDatabase}>
-      <StatusBar translucent backgroundColor="transparent" />
-      <Slot />
+      <GestureHandlerRootView>
+        <StatusBar translucent backgroundColor="transparent" />
+        <Slot />
+      </GestureHandlerRootView>
     </SQLiteProvider>
   )
 }
