@@ -54,11 +54,11 @@ export default function InitialConfig() {
 
             const response = await api.post("/api/mobile/", {
                 cnpj: cnpj.replace(/[./-]/g, ""),
-                md5: deviceId
+                md5: deviceId.substring(0, 40)
             });
 
             if (response.status === 200) {
-                await deviceDatabase.createDevice({ id: '1', device: deviceId, cnpj: cnpj.replace(/[./-]/g, "") });
+                await deviceDatabase.createDevice({ id: '1', device: deviceId.substring(0, 40), cnpj: cnpj.replace(/[./-]/g, "") });
             }
 
             Alert.alert("Cadastro realizado com sucesso!", "Suas informações foram enviadas! Vamos notificar assim que você estiver com acesso ao aplicativo.", [
@@ -210,7 +210,8 @@ export default function InitialConfig() {
                 <View>
                     <Input
                         title="MD5"
-                        value={deviceId}
+                        value={deviceId.substring(0, 40)}
+                        maxLength={40}
                         keyboardType="number-pad"
                         editable
                     />
@@ -244,7 +245,7 @@ export default function InitialConfig() {
                 </View>
                 <View className="flex items-center justify-center mt-14">
                     <Text className="font-body text-xs text-blue-950">© Powered by Speed Automac</Text>
-                    <Text className="font-body text-xs text-blue-950">v.1.0.0</Text>
+                    <Text className="font-body text-xs text-blue-950">v.1.0.1</Text>
                 </View>
             </KeyboardAvoidingView>
             <TouchableOpacity className="absolute w-14 h-14 bottom-2 right-2 p-4 rounded-full bg-blue-950" onPress={() => { setShowModal(true) }} activeOpacity={0.7}>
