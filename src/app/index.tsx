@@ -86,9 +86,10 @@ export default function InitialConfig() {
     async function handleGetActiveDevice() {
         try {
             const device = await deviceDatabase.listDevice();
-
+            
             // Se dentro do banco estiver alguma informação, seta no Estado
             if (device.length > 0) {
+                setDeviceInfo(device[0]);
                 const [deviceResponse, fetchResponse] = await Promise.all([
                     api.post("/api/mobile/user", {
                         md5: device[0].device,
@@ -101,7 +102,6 @@ export default function InitialConfig() {
                 setLoading(true);
                 setShowModal(true);
                 setButtonEnabled(false);
-                setDeviceInfo(device[0]);
 
                 if (deviceResponse.data.ativo === 'S') {
                     setIsActive(true);
@@ -149,12 +149,31 @@ export default function InitialConfig() {
             }
 
         } catch (error) {
-            if (error.response) {
-                Alert.alert("Atenção!! ⚠️ ", `${error.response.data} \nRelize seu cadastro para continuar.`)
+            console.log(error.response.data)
+            if (error.response.data === "Arquivo não encontrado.") {
+                Alert.alert("Atenção!! ⚠️ ", `${error.response.data}\nTente novamente mais tarde.`)
+            } else if (error.response.data === "Usuário não encontrado") {
+                Alert.alert("Atenção!! ⚠️ ", `${error.response.data}\nRealize seu cadastro.`)
             } else {
                 Alert.alert("Ocorreu um erro interno! ❌", `Nao foi possível se conectar ao Servidor \n${error}`);
             }
             setLoading(false);
+        }
+    }
+
+    async function deleteDevice() {
+        try {
+            Alert.alert("Deseja excluir seus dados do dispositivo?", "Somente use essa opção caso não encontrarmos seu usuário, você tem certeza que quer continuar?", [
+                {
+                    text: "Excluir dados",
+                    onPress: async () => { await deviceDatabase.deleteAllDevices(), setDeviceInfo({} as DeviceDatabase) }
+                },
+                {
+                    text: "Não",
+                }
+            ])
+        } catch (error) {
+            Alert.alert("Ocorreu um erro !", `${error}`)
         }
     }
 
@@ -193,6 +212,14 @@ export default function InitialConfig() {
                                             </Button.Text>
                                         </Button>
                                     )
+                                }
+                                {
+                                    !!deviceInfo.cnpj &&
+                                    <TouchableOpacity className="w-full h-12 rounded-lg items-center justify-center flex-row bg-red-400" onPress={() => { deleteDevice() }}>
+                                        <Text className="text-lg font-body mr-4">
+                                            Excluir dados do dispositivo
+                                        </Text>
+                                    </TouchableOpacity>
                                 }
                             </View>
                         )
