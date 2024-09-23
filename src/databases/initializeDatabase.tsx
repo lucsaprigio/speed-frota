@@ -39,7 +39,8 @@ export async function initializeDatabase(database: SQLiteDatabase) {
             CREATE TABLE IF NOT EXISTS devices (
                 id INTEGER NOT NULL,
                 device,
-                cnpj
+                cnpj,
+                ip_api TEXT
             );
             CREATE TABLE IF NOT EXISTS providers (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,

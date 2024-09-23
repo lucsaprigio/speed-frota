@@ -23,6 +23,8 @@ export default function InitialConfig() {
 
     const [loading, setLoading] = useState(false);
     const [showModal, setShowModal] = useState(false);
+    const [showIpModal, setShowIpModal] = useState(false);
+    const [ipApi, setIpApi] = useState("");
     const [deviceInfo, setDeviceInfo] = useState<DeviceDatabase>({} as DeviceDatabase);
     const [isActive, setIsActive] = useState(false);
     const [buttonEnabled, setButtonEnabled] = useState(true);
@@ -52,13 +54,13 @@ export default function InitialConfig() {
                 return;
             }
 
-            const response = await api.post("/api/mobile/", {
+            const response = await api.post(`${ipApi}:8082/api/mobile/`, {
                 cnpj: cnpj.replace(/[./-]/g, ""),
                 md5: deviceId.substring(0, 40)
             });
 
             if (response.status === 200) {
-                await deviceDatabase.createDevice({ id: '1', device: deviceId.substring(0, 40), cnpj: cnpj.replace(/[./-]/g, "") });
+                await deviceDatabase.createDevice({ id: '1', device: deviceId.substring(0, 40), cnpj: cnpj.replace(/[./-]/g, ""), ip_api: ipApi });
             }
 
             Alert.alert("Cadastro realizado com sucesso!", "Suas informações foram enviadas! Vamos notificar assim que você estiver com acesso ao aplicativo.", [
@@ -83,80 +85,91 @@ export default function InitialConfig() {
         }
     }
 
+
     async function handleGetActiveDevice() {
         try {
             const device = await deviceDatabase.listDevice();
-            
-            // Se dentro do banco estiver alguma informação, seta no Estado
-            if (device.length > 0) {
-                setDeviceInfo(device[0]);
-                const [deviceResponse, fetchResponse] = await Promise.all([
-                    api.post("/api/mobile/user", {
-                        md5: device[0].device,
-                        cnpj: device[0].cnpj
-                    }),
 
-                    api.get(`/api/mobile/fetch/${device[0].device}`)
-                ]);
+            if (!device[0]) {
+                setShowIpModal(true);
+                // Se dentro do banco estiver alguma informação, seta no Estado
+            } else {
+                if (device.length > 0) {
+                    setDeviceInfo(device[0]);
+                    setIpApi(device[0].ip_api);
+                    const [deviceResponse, fetchResponse] = await Promise.all([
+                        api.post(`${device[0].ip_api}:8082/api/mobile/user`, {
+                            md5: device[0].device,
+                            cnpj: device[0].cnpj
+                        }),
 
-                setLoading(true);
-                setShowModal(true);
-                setButtonEnabled(false);
+                        api.get(`${device[0].ip_api}:8082/api/mobile/fetch/${device[0].device}`)
+                    ]);
 
-                if (deviceResponse.data.ativo === 'S') {
-                    setIsActive(true);
+                    setLoading(true);
+                    setShowModal(true);
+                    setButtonEnabled(false);
 
-                    for (let i = 0; fetchResponse.data.users.length > i; i++) {
-                        let user = await userDatabase.findById(fetchResponse.data.users[i].id);
+                    if (deviceResponse.data.ativo === 'S') {
+                        setIsActive(true);
 
-                        if (user.length > 0) {
-                            await userDatabase.update({
-                                id: Number(fetchResponse.data.users[i].id),
-                                username: fetchResponse.data.users[i].username,
-                                password: fetchResponse.data.users[i].password
-                            });
-                        } else {
-                            await userDatabase.create({
-                                id: Number(fetchResponse.data.users[i].id),
-                                username: fetchResponse.data.users[i].username,
-                                password: fetchResponse.data.users[i].password
-                            });
-                        }
-                    }
+                        for (let i = 0; fetchResponse.data.users.length > i; i++) {
+                            let user = await userDatabase.findById(fetchResponse.data.users[i].id);
 
-                    for (let i = 0; fetchResponse.data.vehicles.length > i; i++) {
-                        let vehicle = await vehicleDatabase.findById(fetchResponse.data.vehicles[i].id);
-
-                        if (vehicle.length > 0) {
-                            await vehicleDatabase.update({
-                                id: Number(fetchResponse.data.vehicles[i].id),
-                                model: fetchResponse.data.vehicles[i].model,
-                                license_plate: fetchResponse.data.vehicles[i].license_plate
-                            });
-                        } else {
-                            await vehicleDatabase.create({
-                                id: Number(fetchResponse.data.vehicles[i].id),
-                                model: fetchResponse.data.vehicles[i].model,
-                                license_plate: fetchResponse.data.vehicles[i].license_plate
-                            });
+                            if (user.length > 0) {
+                                await userDatabase.update({
+                                    id: Number(fetchResponse.data.users[i].id),
+                                    username: fetchResponse.data.users[i].username,
+                                    password: fetchResponse.data.users[i].password
+                                });
+                            } else {
+                                await userDatabase.create({
+                                    id: Number(fetchResponse.data.users[i].id),
+                                    username: fetchResponse.data.users[i].username,
+                                    password: fetchResponse.data.users[i].password
+                                });
+                            }
                         }
 
+                        for (let i = 0; fetchResponse.data.vehicles.length > i; i++) {
+                            let vehicle = await vehicleDatabase.findById(fetchResponse.data.vehicles[i].id);
+
+                            if (vehicle.length > 0) {
+                                await vehicleDatabase.update({
+                                    id: Number(fetchResponse.data.vehicles[i].id),
+                                    model: fetchResponse.data.vehicles[i].model,
+                                    license_plate: fetchResponse.data.vehicles[i].license_plate
+                                });
+                            } else {
+                                await vehicleDatabase.create({
+                                    id: Number(fetchResponse.data.vehicles[i].id),
+                                    model: fetchResponse.data.vehicles[i].model,
+                                    license_plate: fetchResponse.data.vehicles[i].license_plate
+                                });
+                            }
+
+                        }
+
                     }
 
+                    setLoading(false);
                 }
-
-                setLoading(false);
             }
-
         } catch (error) {
-            console.log(error.response.data)
             if (error.response.data === "Arquivo não encontrado.") {
                 Alert.alert("Atenção!! ⚠️ ", `${error.response.data}\nTente novamente mais tarde.`)
             } else if (error.response.data === "Usuário não encontrado") {
                 Alert.alert("Atenção!! ⚠️ ", `${error.response.data}\nRealize seu cadastro.`)
             } else {
-                Alert.alert("Ocorreu um erro interno! ❌", `Nao foi possível se conectar ao Servidor \n${error}`);
+                Alert.alert("Ocorreu um erro interno! ❌", `Nao foi possível se conectar ao Servidor, verifique o Provedor cadastrado. \n${error}`,
+                    [
+                        {
+                            text: "Alterar endereço IP",
+                            onPress: () => setShowIpModal(true)
+                        }
+                    ]);
             }
+        } finally {
             setLoading(false);
         }
     }
@@ -226,6 +239,27 @@ export default function InitialConfig() {
                     }
                 </View>
             </Modal>
+            <Modal visible={showIpModal} animationType="fade" transparent>
+                <View className="flex h-full justify-center p-3" style={{ backgroundColor: 'rgba(0, 0, 0, 0.8)' }}>
+                    <View className="flex justify-center items-center bg-gray-50 p-8 rounded-sm space-y-4">
+                    <Text className="font-heading text-3xl text-center">⚠️</Text>
+                        <Text className="font-heading text-lg text-center">Verifique o provedor de conexão</Text>
+                        <Text className="font-heading text-smm text-center">Para conectar ao servidor, preencha um endereço válido.</Text>
+                        <Input
+                            value={ipApi}
+                            onChangeText={setIpApi}
+                            placeholder="Ex: http://ddns.com.br"
+                            autoCapitalize="none"
+                            autoCorrect={false}
+                        />
+                        <Button onPress={() => { setShowIpModal(false), setLoading(false), setButtonEnabled(true) }}>
+                            <Button.Text>
+                                Confirmar
+                            </Button.Text>
+                        </Button>
+                    </View>
+                </View>
+            </Modal >
             <KeyboardAvoidingView behavior='position' enabled >
                 <Header title="Configuração inicial" />
                 <View className="flex items-center justify-center">
@@ -240,7 +274,7 @@ export default function InitialConfig() {
                         value={deviceId.substring(0, 40)}
                         maxLength={40}
                         keyboardType="number-pad"
-                        editable
+                        editable={false}
                     />
                     <Input
                         title="Nome"
