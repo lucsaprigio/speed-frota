@@ -54,11 +54,11 @@ export default function InitialConfig() {
 
             const response = await api.post("/api/mobile/", {
                 cnpj: cnpj.replace(/[./-]/g, ""),
-                md5: deviceId
+                md5: deviceId.substring(0, 40)
             });
 
             if (response.status === 200) {
-                await deviceDatabase.createDevice({ id: '1', device: deviceId, cnpj: cnpj.replace(/[./-]/g, "") });
+                await deviceDatabase.createDevice({ id: '1', device: deviceId.substring(0, 40), cnpj: cnpj.replace(/[./-]/g, "") });
             }
 
             Alert.alert("Cadastro realizado com sucesso!", "Suas informações foram enviadas! Vamos notificar assim que você estiver com acesso ao aplicativo.", [
@@ -86,9 +86,10 @@ export default function InitialConfig() {
     async function handleGetActiveDevice() {
         try {
             const device = await deviceDatabase.listDevice();
-
+            
             // Se dentro do banco estiver alguma informação, seta no Estado
             if (device.length > 0) {
+                setDeviceInfo(device[0]);
                 const [deviceResponse, fetchResponse] = await Promise.all([
                     api.post("/api/mobile/user", {
                         md5: device[0].device,
@@ -101,7 +102,6 @@ export default function InitialConfig() {
                 setLoading(true);
                 setShowModal(true);
                 setButtonEnabled(false);
-                setDeviceInfo(device[0]);
 
                 if (deviceResponse.data.ativo === 'S') {
                     setIsActive(true);
@@ -149,12 +149,31 @@ export default function InitialConfig() {
             }
 
         } catch (error) {
-            if (error.response) {
-                Alert.alert("Atenção!! ⚠️ ", `${error.response.data} \nRelize seu cadastro para continuar.`)
+            console.log(error.response.data)
+            if (error.response.data === "Arquivo não encontrado.") {
+                Alert.alert("Atenção!! ⚠️ ", `${error.response.data}\nTente novamente mais tarde.`)
+            } else if (error.response.data === "Usuário não encontrado") {
+                Alert.alert("Atenção!! ⚠️ ", `${error.response.data}\nRealize seu cadastro.`)
             } else {
                 Alert.alert("Ocorreu um erro interno! ❌", `Nao foi possível se conectar ao Servidor \n${error}`);
             }
             setLoading(false);
+        }
+    }
+
+    async function deleteDevice() {
+        try {
+            Alert.alert("Deseja excluir seus dados do dispositivo?", "Somente use essa opção caso não encontrarmos seu usuário, você tem certeza que quer continuar?", [
+                {
+                    text: "Excluir dados",
+                    onPress: async () => { await deviceDatabase.deleteAllDevices(), setDeviceInfo({} as DeviceDatabase) }
+                },
+                {
+                    text: "Não",
+                }
+            ])
+        } catch (error) {
+            Alert.alert("Ocorreu um erro !", `${error}`)
         }
     }
 
@@ -194,6 +213,14 @@ export default function InitialConfig() {
                                         </Button>
                                     )
                                 }
+                                {
+                                    !!deviceInfo.cnpj &&
+                                    <TouchableOpacity className="w-full h-12 rounded-lg items-center justify-center flex-row bg-red-400" onPress={() => { deleteDevice() }}>
+                                        <Text className="text-lg font-body mr-4">
+                                            Excluir dados do dispositivo
+                                        </Text>
+                                    </TouchableOpacity>
+                                }
                             </View>
                         )
                     }
@@ -210,7 +237,8 @@ export default function InitialConfig() {
                 <View>
                     <Input
                         title="MD5"
-                        value={deviceId}
+                        value={deviceId.substring(0, 40)}
+                        maxLength={40}
                         keyboardType="number-pad"
                         editable
                     />
@@ -244,7 +272,7 @@ export default function InitialConfig() {
                 </View>
                 <View className="flex items-center justify-center mt-14">
                     <Text className="font-body text-xs text-blue-950">© Powered by Speed Automac</Text>
-                    <Text className="font-body text-xs text-blue-950">v.1.0.0</Text>
+                    <Text className="font-body text-xs text-blue-950">v.1.0.1</Text>
                 </View>
             </KeyboardAvoidingView>
             <TouchableOpacity className="absolute w-14 h-14 bottom-2 right-2 p-4 rounded-full bg-blue-950" onPress={() => { setShowModal(true) }} activeOpacity={0.7}>
