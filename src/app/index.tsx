@@ -1,4 +1,4 @@
-import { Alert, KeyboardAvoidingView, ScrollView, Text, View, Modal } from "react-native";
+import { Alert, KeyboardAvoidingView, ScrollView, Text, View, Modal, TouchableOpacity } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { Header } from "../components/header";
 import { Input } from "../components/input";
@@ -75,7 +75,7 @@ export default function InitialConfig() {
             setLoading(false);
             setButtonEnabled(true);
             console.log(error);
-            Alert.alert("Ocorreu um erro!", "Verifique as informaçções fornecidas novamente.", [
+            Alert.alert("Ocorreu um erro!", `${error}`, [
                 {
                     text: "Fechar",
                 }
@@ -152,7 +152,7 @@ export default function InitialConfig() {
             if (error.response) {
                 Alert.alert("Atenção!! ⚠️ ", `${error.response.data} \nRelize seu cadastro para continuar.`)
             } else {
-                Alert.alert("Ocorreu um erro interno! ❌", `${error}`);
+                Alert.alert("Ocorreu um erro interno! ❌", `Nao foi possível se conectar ao Servidor \n${error}`);
             }
             setLoading(false);
         }
@@ -168,16 +168,16 @@ export default function InitialConfig() {
     return (
         <>
             <Modal visible={showModal} animationType="fade" transparent>
-                <View className="flex h-full justify-center bg-zinc-700 p-3">
+                <View className="flex h-full justify-center p-3" style={{ backgroundColor: 'rgba(0, 0, 0, 0.8)' }}>
                     {
                         loading ? (
                             <Loading />
                         ) : (
                             <View className="flex justify-center items-center bg-gray-50 p-8 rounded-sm space-y-4">
                                 <Feather name="info" size={48} color={colors.blue[950]} />
-                                <Text className="font-heading text-lg text-center">Encontramos informações cadastradas no seu dispositivo</Text>
-                                <Text className="font-body">CNPJ - {deviceInfo.cnpj}</Text>
-                                <Text className="font-body">Dispositivo - {deviceInfo.device}</Text>
+                                <Text className="font-heading text-lg text-center">Informações no dispositivo</Text>
+                                <Text className="font-body">CNPJ - {!deviceInfo.cnpj ? "Não encontrado" : deviceInfo.cnpj}</Text>
+                                <Text className="font-body">Dispositivo - {!deviceInfo.device ? "Não encontrado" : deviceInfo.device}</Text>
                                 {isActive ? (<Text className="text-green-500 text-lg font-heading">Este dispositivo está ativo ✅</Text>) : (<Text className="text-lg font-heading">Aguardando responsta 🕑</Text>)}
                                 {
                                     isActive === true ? (
@@ -199,55 +199,57 @@ export default function InitialConfig() {
                     }
                 </View>
             </Modal>
-            <GestureHandlerRootView>
-                <KeyboardAvoidingView behavior='position' enabled >
-                    <Header title="Configuração inicial" />
-                    <View className="flex items-center justify-center">
-                        <Text className="text-lg m-10 text-center">
-                            Preencha os campos abaixo para continuar
-                        </Text>
+            <KeyboardAvoidingView behavior='position' enabled >
+                <Header title="Configuração inicial" />
+                <View className="flex items-center justify-center">
+                    <Text className="text-lg m-10 text-center">
+                        Preencha os campos abaixo para continuar
+                    </Text>
+                </View>
+
+                <View>
+                    <Input
+                        title="MD5"
+                        value={deviceId}
+                        keyboardType="number-pad"
+                        editable
+                    />
+                    <Input
+                        title="Nome"
+                        placeholder="Digite seu nome"
+                        value={username}
+                        onChangeText={setUsername}
+                        maxLength={40}
+                        autoComplete="additional-name"
+                    />
+                    <TextMaskInput
+                        title="CNPJ"
+                        placeholder="00.000.000/0000-00"
+                        maxLength={19}
+                        value={cnpj}
+                        onChangeText={setCnpj}
+                        keyboardType="number-pad"
+                        mask='99.999.999/9999-99'
+                    />
+
+                    <View className="mt-5 px-4 space-y-2">
+                        <Button onPress={create} disabled={!buttonEnabled}>
+                            <Button.Text>
+                                {
+                                    loading === true ? (<Loading />) : (<Text>Cadastrar</Text>)
+                                }
+                            </Button.Text>
+                        </Button>
                     </View>
-
-                    <ScrollView>
-                        <Input
-                            title="MD5"
-                            value={deviceId}
-                            keyboardType="number-pad"
-                            editable
-                        />
-                        <Input
-                            title="Nome"
-                            placeholder="Digite seu nome"
-                            value={username}
-                            onChangeText={setUsername}
-                            maxLength={40}
-                            autoComplete="additional-name"
-                        />
-                        <TextMaskInput
-                            title="CNPJ"
-                            placeholder="00.000.000/0000-00"
-                            maxLength={19}
-                            value={cnpj}
-                            onChangeText={setCnpj}
-                            keyboardType="number-pad"
-                            mask='99.999.999/9999-99'
-                        />
-
-                        <View className="mt-5 px-4 space-y-2">
-                            <Button onPress={create} disabled={!buttonEnabled}>
-                                <Button.Text>
-                                    {
-                                        loading === true ? (<Loading />) : (<Text>Cadastrar</Text>)
-                                    }
-                                </Button.Text>
-                            </Button>
-                        </View>
-                        <View className="absolute bottom-0 px-2">
-                            <Text className="text-xs text-blue-950">v.1.0.0</Text>
-                        </View>
-                    </ScrollView>
-                </KeyboardAvoidingView>
-            </GestureHandlerRootView>
+                </View>
+                <View className="flex items-center justify-center mt-14">
+                    <Text className="font-body text-xs text-blue-950">© Powered by Speed Automac</Text>
+                    <Text className="font-body text-xs text-blue-950">v.1.0.0</Text>
+                </View>
+            </KeyboardAvoidingView>
+            <TouchableOpacity className="absolute w-14 h-14 bottom-2 right-2 p-4 rounded-full bg-blue-950" onPress={() => { setShowModal(true) }} activeOpacity={0.7}>
+                <Feather name="info" size={24} color={colors.gray[50]} />
+            </TouchableOpacity>
         </>
     )
 }
