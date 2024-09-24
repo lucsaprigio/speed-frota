@@ -4,6 +4,7 @@ export type DeviceDatabase = {
     id: string;
     device: string;
     cnpj: string;
+    ip_api: string;
 }
 
 export function useDeviceDatabase() {
@@ -11,7 +12,7 @@ export function useDeviceDatabase() {
 
     async function createDevice(data: DeviceDatabase) {
         const statement = await database.prepareAsync(
-            `INSERT INTO devices (id, device, cnpj) values ($id, $device, $cnpj);`
+            `INSERT INTO devices (id, device, cnpj, ip_api) values ($id, $device, $cnpj, $ip_api);`
         );
 
         try {
@@ -19,6 +20,7 @@ export function useDeviceDatabase() {
                 $id: data.id,
                 $device: data.device,
                 $cnpj: data.cnpj,
+                $ip_api: data.ip_api
             });
 
             return result;
@@ -72,6 +74,6 @@ export function useDeviceDatabase() {
             await statement.finalizeAsync();
         }
     }
- 
+
     return { createDevice, listDevice, updateDevice, deleteAllDevices };
 }

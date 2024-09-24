@@ -46,10 +46,6 @@ export default function Vehicles() {
                 <Text className="font-heading text-2xl border-gray-300">Veículos</Text>
             </SafeAreaView>
             <View className="flex items-center justify-center">
-                <TouchableOpacity className="flex flex-row items-center justify-between bg-blue-950 rounded-full px-4 py-1 m-3" onPress={() => { router.push("/vehicles/new-vehicle") }}>
-                    <MaterialIcons name="add" color={colors.gray[50]} size={18} />
-                    <Text className="text-gray-50">Novo veículo</Text>
-                </TouchableOpacity>
                 <Text className="font-body mt-3">Toque para registrar uma frota</Text>
             </View>
             <ScrollView className="px-3 pb-3">

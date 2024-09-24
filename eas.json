@@ -5,6 +5,7 @@
                 "EXPO_PUBLIC_API_URL": "http://speed.assistant.com.br:8082"
             },
             "android": {
+                "gradleCommand": ":app:assembleRelease",
                 "buildType": "apk"
             }
         },
