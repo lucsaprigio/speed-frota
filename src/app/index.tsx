@@ -210,6 +210,7 @@ export default function InitialConfig() {
                                 <Text className="font-heading text-lg text-center">Informações no dispositivo</Text>
                                 <Text className="font-body">CNPJ - {!deviceInfo.cnpj ? "Não encontrado" : deviceInfo.cnpj}</Text>
                                 <Text className="font-body">Dispositivo - {!deviceInfo.device ? "Não encontrado" : deviceInfo.device}</Text>
+                                <Text className="font-body">IP Destino - {!deviceInfo.ip_api ? "Sem " : deviceInfo.ip_api}</Text>
                                 {isActive ? (<Text className="text-green-500 text-lg font-heading">Este dispositivo está ativo ✅</Text>) : (<Text className="text-lg font-heading">Aguardando responsta 🕑</Text>)}
                                 {
                                     isActive === true ? (
