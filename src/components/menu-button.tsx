@@ -1,5 +1,5 @@
 import { MaterialIcons, Feather } from "@expo/vector-icons";
-import { Text, TouchableOpacity, TouchableOpacityProps } from "react-native";
+import { Image, Text, TouchableOpacity, TouchableOpacityProps } from "react-native";
 import colors from "tailwindcss/colors";
 
 type IconButtonProps = TouchableOpacityProps & {

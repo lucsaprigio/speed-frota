@@ -1,4 +1,4 @@
-import { Slot } from "expo-router";
+import { Slot, Stack } from "expo-router";
 
 import {
   useFonts,
@@ -35,7 +35,7 @@ export default function Layout() {
     <SQLiteProvider databaseName="speed.db" onInit={initializeDatabase}>
       <GestureHandlerRootView>
         <StatusBar translucent backgroundColor="transparent" />
-        <Slot />
+        <Stack screenOptions={{ headerShown: false }} />
       </GestureHandlerRootView>
     </SQLiteProvider>
   )
