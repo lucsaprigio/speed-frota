@@ -1,14 +1,15 @@
-import { Alert, BackHandler, Image, Text, View } from "react-native";
+import { Alert, BackHandler, Image, Modal, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import LogoImg from "../../../../assets/images/logo-speed-branco.png";
 import { Input } from "../../../components/input";
 import { Button } from "@/src/components/button";
 import { useEffect, useState } from "react";
-import { useRouter } from "expo-router";
+import { Redirect, useFocusEffect, useRouter } from "expo-router";
 import { useUsersDatabase, UserDatabase } from "@/src/databases/users/useUsersDatabase";
 import { Picker } from "@react-native-picker/picker";
 import { userSessionDatabase } from "@/src/databases/users/userSessionDatabase";
 import * as Device from 'expo-device';
+import { Loading } from "@/src/components/loading";
 
 export default function SignIn() {
     const router = useRouter();
@@ -16,6 +17,7 @@ export default function SignIn() {
     const [password, setPassword] = useState("");
     const [userId, setUserId] = useState("");
     const [users, setUsers] = useState<UserDatabase[]>([]);
+    const [showModal, setShowModal] = useState(false);
 
     const userDatabase = useUsersDatabase();
     const sessionDatabase = userSessionDatabase();
@@ -25,7 +27,6 @@ export default function SignIn() {
     async function handleSignIn(id?: string) {
         try {
             const response = await userDatabase.findById(id.toString());
-            console.log(response[0].username);
             await sessionDatabase.deleteSession();
 
             await sessionDatabase.create({
@@ -64,8 +65,24 @@ export default function SignIn() {
         }
     }
 
+    async function findSession() {
+        try {
+            setShowModal(true);
+            const session = await sessionDatabase.find();
+
+            if (session.length > 0) {
+                return router.replace('/(signed-routes)/home')
+            }
+        } catch (error) {
+            Alert.alert("Não foi possível iniciar a sessão", "Faça login novamente.")
+        } finally {
+            setShowModal(false);
+        }
+    }
+
     useEffect(() => {
         listUsers();
+        // findSession();
 
         const disableBackHandler = () => {
             return true;
@@ -78,8 +95,15 @@ export default function SignIn() {
         };
     }, [userId]);
 
+
+
     return (
         <View className="flex-1 bg-blue-950">
+            <Modal visible={showModal} animationType="fade" transparent>
+                <View className="flex h-full justify-center p-3" style={{ backgroundColor: 'rgba(0, 0, 0, 0.8)' }}>
+                    <Loading />
+                </View>
+            </Modal>
             <SafeAreaView className="flex items-center justify-center m-10" >
                 <Image source={LogoImg} className="w-40 h-40" resizeMode="contain" />
                 <Text className="text-3xl text-gray-50 font-heading ">Bem vindo 👋</Text>
