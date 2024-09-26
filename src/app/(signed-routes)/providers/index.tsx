@@ -54,7 +54,8 @@ export default function Providers() {
             </View>
             <ScrollView>
                 {
-                    filteredProviders.length > 0 ? (
+                    search !== '' &&
+                        filteredProviders.length > 0 ? (
                         filteredProviders.map((provider) => (
                             <View>
                                 <Text>{provider.providerName}</Text>
@@ -65,6 +66,14 @@ export default function Providers() {
                             <Text className="text-gray-500 font-body text-md">Sem resultados a pesquisa</Text>
                         </View>
                     )
+                }
+                {
+                    search === '' &&
+                    providers.map((provider) => (
+                        <View>
+                            <Text>{provider.providerName}</Text>
+                        </View>
+                    ))
                 }
             </ScrollView>
         </View>
