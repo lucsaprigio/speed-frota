@@ -4,7 +4,7 @@ import LogoImg from "../../../../assets/images/logo-speed-branco.png";
 import { Input } from "../../../components/input";
 import { Button } from "@/src/components/button";
 import { useEffect, useState } from "react";
-import { Redirect, useFocusEffect, useRouter } from "expo-router";
+import { useRouter } from "expo-router";
 import { useUsersDatabase, UserDatabase } from "@/src/databases/users/useUsersDatabase";
 import { Picker } from "@react-native-picker/picker";
 import { userSessionDatabase } from "@/src/databases/users/userSessionDatabase";
@@ -71,7 +71,7 @@ export default function SignIn() {
             const session = await sessionDatabase.find();
 
             if (session.length > 0) {
-                return router.replace("(signed-routes)/home")
+                return router.replace("/(signed-routes)/home")
             }
         } catch (error) {
             Alert.alert("Não foi possível iniciar a sessão", "Faça login novamente.")
@@ -79,6 +79,7 @@ export default function SignIn() {
             setShowModal(false);
         }
     }
+
 
     useEffect(() => {
         listUsers();
@@ -94,8 +95,6 @@ export default function SignIn() {
             BackHandler.removeEventListener('hardwareBackPress', disableBackHandler);
         };
     }, [userId]);
-
-
 
     return (
         <View className="flex-1 bg-blue-950">

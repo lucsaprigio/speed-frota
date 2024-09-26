@@ -25,7 +25,7 @@ export default function Fleets() {
 
     useEffect(() => {
         listAll();
-    }, [])
+    }, []);
 
     return (
         <>
@@ -41,7 +41,7 @@ export default function Fleets() {
                         <TouchableOpacity
                             key={item.id}
                             className="flex flex-row w-full items-center justify-between space-y-2 p-3 border-[1px] rounded-md bg-blue-800"
-                            onPress={() => router.push({ pathname: "/(signed-routes)/fleets/edit-fleet", params: { id: item.id, description: item.description, provider: item.provider, price: item.price.toFixed(2) } })}
+                            // onPress={() => router.push({ pathname: "/(signed-routes)/fleets/edit-fleet", params: { id: item.id, description: item.description, provider: item.provider, price: item.price.toFixed(2) } })}
                             activeOpacity={0.7}
                         >
                             <View>
