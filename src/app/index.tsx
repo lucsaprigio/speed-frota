@@ -14,6 +14,7 @@ import { Loading } from "../components/loading";
 import { Feather } from "@expo/vector-icons";
 import colors from "tailwindcss/colors";
 import { useVehiclesDatabase } from "../databases/vehicles/useVehiclesDatabase";
+import { useProvidersDatabase } from "../databases/provider-db/useProvidersDatabase";
 
 export default function InitialConfig() {
     const router = useRouter();
@@ -32,6 +33,7 @@ export default function InitialConfig() {
     const userDatabase = useUsersDatabase();
     const deviceDatabase = useDeviceDatabase();
     const vehicleDatabase = useVehiclesDatabase();
+    const providerDatabase = useProvidersDatabase();
 
     const deviceId = `${Device.osInternalBuildId.replace(/[-.,_]/g, "")}${Device.totalMemory}${Device.platformApiLevel}`;
 
@@ -150,6 +152,23 @@ export default function InitialConfig() {
 
                         }
 
+                        for (let i = 0; fetchResponse.data.providers.length > i; i++) {
+                            let provider = await providerDatabase.findById(fetchResponse.data.providers[i].id);
+                            console.log(provider)
+
+                            if (provider.length > 0) {
+                                await providerDatabase.update({
+                                    id: Number(fetchResponse.data.providers[i].id),
+                                    providerName: fetchResponse.data.providers[i].providerName,
+                                });
+                            } else {
+                                await providerDatabase.create({
+                                    id: Number(fetchResponse.data.providers[i].id),
+                                    providerName: fetchResponse.data.providers[i].providerName,
+                                });
+                            }
+
+                        }
                     }
 
                     setLoading(false);
@@ -243,7 +262,7 @@ export default function InitialConfig() {
             <Modal visible={showIpModal} animationType="fade" transparent>
                 <View className="flex h-full justify-center p-3" style={{ backgroundColor: 'rgba(0, 0, 0, 0.8)' }}>
                     <View className="flex justify-center items-center bg-gray-50 p-8 rounded-sm space-y-4">
-                    <Text className="font-heading text-3xl text-center">⚠️</Text>
+                        <Text className="font-heading text-3xl text-center">⚠️</Text>
                         <Text className="font-heading text-lg text-center">Verifique o provedor de conexão</Text>
                         <Text className="font-heading text-smm text-center">Para conectar ao servidor, preencha um endereço válido.</Text>
                         <Input
@@ -260,7 +279,7 @@ export default function InitialConfig() {
                         </Button>
                     </View>
                 </View>
-            </Modal >
+            </Modal>
             <KeyboardAvoidingView behavior='position' enabled >
                 <Header title="Configuração inicial" />
                 <View className="flex items-center justify-center">

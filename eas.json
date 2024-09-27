@@ -1,9 +1,7 @@
 {
     "build": {
         "preview": {
-            "env": {
-                "EXPO_PUBLIC_API_URL": "http://speed.assistant.com.br:8082"
-            },
+            "env": {},
             "android": {
                 "gradleCommand": ":app:assembleRelease",
                 "buildType": "apk"

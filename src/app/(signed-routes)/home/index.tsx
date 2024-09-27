@@ -16,6 +16,7 @@ import Provider from "../../../../assets/images/servicos-profissionais.png";
 import User from "../../../../assets/images/user.png";
 import Logo from "../../../../assets/images/logo-speed-colorido.png";
 import { FleetDatabase, useFleetsDatabase } from "@/src/databases/fleets/useFleetsDatabase";
+import { IconButton } from "@/src/components/menu-button";
 
 export default function Home() {
     const router = useRouter();
@@ -168,35 +169,27 @@ export default function Home() {
                 </SafeAreaView>
                 <View className="flex-1 p-3 bg-gray-200">
                     <Text className="text-lg font-heading p-3">Selecione uma das opções abaixo</Text>
-                    <View className="flex flex-row flex-wrap items-center justify-start gap-3 mt-8 bg-gray-200">
-                        <TouchableOpacity className="flex items-center justify-center w-28 h-28 bg-blue-900 rounded-md border-[1px] border-blue-950"
-                            activeOpacity={0.7}
+                    <View className="flex flex-row flex-wrap items-center justify-center gap-3 mt-8 bg-gray-200">
+                        <IconButton
+                            source={<Image className="w-14 h-14" resizeMode="contain" source={Hatchback} />}
+                            title="Nova frota"
                             onPress={() => { router.push("/vehicles") }}
-                        >
-                            <Image className="w-10 h-10" resizeMode="contain" source={Hatchback} />
-                            <Text className="text-gray-50">Nota Frota</Text>
-                        </TouchableOpacity>
-                        <TouchableOpacity className="flex items-center justify-center w-28 h-28 bg-blue-900 rounded-md border-[1px] border-blue-950"
-                            activeOpacity={0.7}
-                            onPress={() => { router.push("/(signed-routes)/fleets") }}
-                        >
-                            <Image className="w-10 h-10" resizeMode="contain" source={Road} />
-                            <Text className="text-gray-50">Frotas</Text>
-                        </TouchableOpacity>
-                        <TouchableOpacity className="flex items-center justify-center w-28 h-28 bg-blue-900 rounded-md border-[1px] border-blue-950"
-                            activeOpacity={0.7}
+                        />
+                        <IconButton
+                            source={<Image className="w-14 h-14" resizeMode="contain" source={Road} />}
+                            title="Frotas"
+                            onPress={() => { router.push("/fleets") }}
+                        />
+                        <IconButton
+                            source={<Image className="w-14 h-14" resizeMode="contain" source={Provider} />}
+                            title="Prestadores"
                             onPress={() => { router.push("/providers") }}
-                        >
-                            <Image className="w-10 h-10" resizeMode="contain" source={Provider} />
-                            <Text className="text-gray-50">Prestadores</Text>
-                        </TouchableOpacity>
-                        <TouchableOpacity className="flex items-center justify-center w-28 h-28 bg-blue-900 rounded-md border-[1px] border-blue-950"
-                            activeOpacity={0.7}
-                            onPress={() => { router.push("/providers") }}
-                        >
-                            <Image className="w-10 h-10" resizeMode="contain" source={Services} />
-                            <Text className="text-gray-50">Serviços</Text>
-                        </TouchableOpacity>
+                        />
+                        <IconButton
+                            source={<Image className="w-14 h-14" resizeMode="contain" source={Services} />}
+                            title="Serviços"
+                            onPress={() => { router.push("/registered-services") }}
+                        />
                     </View>
                 </View>
             </GestureHandlerRootView >
