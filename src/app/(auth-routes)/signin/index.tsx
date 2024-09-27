@@ -71,7 +71,7 @@ export default function SignIn() {
             const session = await sessionDatabase.find();
 
             if (session.length > 0) {
-                return router.replace("(signed-routes)/home")
+                return router.replace("/(signed-routes)/home")
             }
         } catch (error) {
             Alert.alert("Não foi possível iniciar a sessão", "Faça login novamente.")
