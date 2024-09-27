@@ -1,10 +1,10 @@
 import { useTypeServicesDatabase } from "@/src/databases/type-service/useTypeServicesDatabase";
 import { userSessionDatabase } from "@/src/databases/users/userSessionDatabase";
 import { formatDate } from "@/src/utils/functions/dateFormatted";
-import { Feather } from "@expo/vector-icons";
-import { useRouter } from "expo-router";
-import { useEffect, useState } from "react";
-import { ActivityIndicator, Alert, BackHandler, Image, Modal, Text, View } from "react-native";
+import { Feather, FontAwesome, MaterialCommunityIcons } from "@expo/vector-icons";
+import { useFocusEffect, useRouter } from "expo-router";
+import { useCallback, useEffect, useState } from "react";
+import { ActivityIndicator, Alert, BackHandler, Image, Modal, Pressable, Text, View } from "react-native";
 import { GestureHandlerRootView, TouchableOpacity } from "react-native-gesture-handler";
 import { SafeAreaView } from "react-native-safe-area-context";
 import colors from "tailwindcss/colors";
@@ -14,6 +14,8 @@ import Road from "../../../../assets/images/estrada.png";
 import Services from "../../../../assets/images/servico.png";
 import Provider from "../../../../assets/images/servicos-profissionais.png";
 import User from "../../../../assets/images/user.png";
+import Logo from "../../../../assets/images/logo-speed-colorido.png";
+import { FleetDatabase, useFleetsDatabase } from "@/src/databases/fleets/useFleetsDatabase";
 
 export default function Home() {
     const router = useRouter();
@@ -23,9 +25,11 @@ export default function Home() {
     const [month, setMonth] = useState('');
     const [modalLoading, setModalLoading] = useState(false);
     const [username, setUsername] = useState('');
+    const [fleetPending, setFleetPending] = useState<FleetDatabase[]>([]);
 
     const typeServiceDatabase = useTypeServicesDatabase();
     const sessionDatabase = userSessionDatabase();
+    const fleetDatabase = useFleetsDatabase();
 
     const servicesDefault = [
         {
@@ -97,6 +101,17 @@ export default function Home() {
         ]);
     }
 
+    async function handleGetFleetsToSent() {
+        try {
+            const response = await fleetDatabase.listFleetsNotSent();
+            setFleetPending(response);
+
+            console.log(response);
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
     useEffect(() => {
         handleGetDate();
         getUserInfo();
@@ -113,6 +128,10 @@ export default function Home() {
         };
     }, []);
 
+    useFocusEffect(useCallback(() => {
+        handleGetFleetsToSent();
+    }, []));
+
     return (
         <>
             <Modal visible={modalLoading} animationType="fade" transparent>
@@ -122,18 +141,29 @@ export default function Home() {
                 </View>
             </Modal>
             <GestureHandlerRootView>
-                <SafeAreaView className="flex flex-row justify-between bg-blue-950 py-14 px-4">
+                <SafeAreaView className="relative flex flex-row justify-between bg-gray-200 border-b-[1px] border-gray-300 py-14 px-4">
+                    <Pressable className="absolute top-10 left-7" onPress={() => { }}>
+                        {
+                            fleetPending.length > 0 &&
+                            < View className="relative">
+                                <Feather name="send" size={24} color={colors.blue[950]} />
+                                <View className="absolute right-0 top-4">
+                                    <MaterialCommunityIcons name="circle" color={colors.red[600]} />
+                                </View>
+                            </View>
+                        }
+                    </Pressable>
                     <View className="flex flex-row items-center justify-center">
                         <TouchableOpacity className="flex items-center p-1 m-3 rounded-full" activeOpacity={0.5}>
-                            <Image className="w-10 h-10" source={User} />
+                            <FontAwesome name="user-circle" size={52} color={colors.blue[950]} />
                         </TouchableOpacity>
                         <View>
-                            <Text className="text-lg font-subtitle text-gray-100">Olá, {username}</Text>
-                            <Text className="text-sm text-gray-100">{weekDay}, {day} de {month}</Text>
+                            <Text className="text-lg font-subtitle">Olá, {username}</Text>
+                            <Text className="text-sm font-body">{weekDay}, {day} de {month}</Text>
                         </View>
                     </View>
                     <TouchableOpacity className="flex items-center justify-center" onPress={handleLogout}>
-                        <Feather name="log-out" size={28} color={colors.gray[100]} />
+                        <Feather name="log-out" size={28} />
                     </TouchableOpacity>
                 </SafeAreaView>
                 <View className="flex-1 p-3 bg-gray-200">
@@ -155,21 +185,21 @@ export default function Home() {
                         </TouchableOpacity>
                         <TouchableOpacity className="flex items-center justify-center w-28 h-28 bg-blue-900 rounded-md border-[1px] border-blue-950"
                             activeOpacity={0.7}
-                            onPress={() => { router.push("/vehicles") }}
+                            onPress={() => { router.push("/providers") }}
                         >
                             <Image className="w-10 h-10" resizeMode="contain" source={Provider} />
-                            <Text className="text-gray-50">Provedores</Text>
+                            <Text className="text-gray-50">Prestadores</Text>
                         </TouchableOpacity>
                         <TouchableOpacity className="flex items-center justify-center w-28 h-28 bg-blue-900 rounded-md border-[1px] border-blue-950"
                             activeOpacity={0.7}
-                            onPress={() => { }}
+                            onPress={() => { router.push("/providers") }}
                         >
                             <Image className="w-10 h-10" resizeMode="contain" source={Services} />
                             <Text className="text-gray-50">Serviços</Text>
                         </TouchableOpacity>
                     </View>
                 </View>
-            </GestureHandlerRootView>
+            </GestureHandlerRootView >
         </>
 
     )

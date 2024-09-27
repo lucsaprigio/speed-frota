@@ -67,6 +67,18 @@ export function useFleetsDatabase() {
         }
     }
 
+    async function listFleetsNotSent() {
+        try {
+            const query = `SELECT * FROM fleets WHERE sent = 'N'`;
+
+            const response = await database.getAllAsync<FleetDatabase>(query);
+
+            return response;
+        } catch (error) {
+
+        }
+    }
+
     async function listAllFleets() {
         try {
             const query = `
@@ -112,5 +124,5 @@ export function useFleetsDatabase() {
         }
     }
 
-    return { createFleet, listAllFleets, updateFleet, findById, deleteAllFleets };
+    return { createFleet, listAllFleets, updateFleet, findById, deleteAllFleets, listFleetsNotSent };
 }
