@@ -28,10 +28,8 @@ export function useProvidersDatabase() {
 
     async function update(data: ProviderDatabase) {
         const statement = await database.prepareAsync(
-            `UPDATE providers SET providerName = $providerName, password = $password WHERE id = $id`
+            `UPDATE providers SET providerName = $providerName WHERE id = $id`
         );
-
-        console.log(data);
 
         try {
             await statement.executeAsync({
@@ -60,7 +58,7 @@ export function useProvidersDatabase() {
 
     async function findById(id: string) {
         try {
-            const query = 'SELECT * FROM users WHERE id = ?';
+            const query = 'SELECT * FROM providers WHERE id = ?';
 
             const response = await database.getAllAsync<ProviderDatabase>(query, id);
 
