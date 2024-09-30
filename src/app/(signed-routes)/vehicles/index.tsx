@@ -26,7 +26,7 @@ export default function Vehicles() {
     }
 
     function handleGoToCreateService(carId: number, plate: string, description: string) {
-        return router.push({ pathname: "/service", params: { carId, plate, description } });
+        return router.push({ pathname: "/(signed-routes)/new-service", params: { carId, plate, description } });
     }
 
     useFocusEffect(useCallback(() => {

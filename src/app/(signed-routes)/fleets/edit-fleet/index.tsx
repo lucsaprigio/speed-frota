@@ -2,7 +2,7 @@ import { Input } from "@/src/components/input";
 import { Feather } from "@expo/vector-icons";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useState } from "react";
-import { DevSettings, Text, View } from "react-native";
+import { Text, View } from "react-native";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import { SafeAreaView } from "react-native-safe-area-context";
 
@@ -47,4 +47,4 @@ export default function EditFleet() {
             </View>
         </View>
     )
-}
+} 
