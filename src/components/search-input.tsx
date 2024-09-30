@@ -1,6 +1,5 @@
 import { Feather } from "@expo/vector-icons";
 import { Pressable, TextInput, TextInputProps, View } from "react-native";
-import { TouchableOpacity } from "react-native-gesture-handler";
 import colors from "tailwindcss/colors";
 
 type InputProps = TextInputProps & {

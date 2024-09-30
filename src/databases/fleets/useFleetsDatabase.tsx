@@ -67,6 +67,22 @@ export function useFleetsDatabase() {
         }
     }
 
+    async function setSent(id: string[]) {
+        console.log(id)
+        const statement = await database.prepareAsync(
+            `UPDATE fleets SET sent = 'S' WHERE id IN (${id})`
+        );
+
+        try {
+            await statement.executeAsync();
+        } catch (error) {
+            throw error;
+        } finally {
+            await statement.finalizeAsync();
+
+        }
+    }
+
     async function listFleetsNotSent() {
         try {
             const query = `SELECT * FROM fleets WHERE sent = 'N'`;
@@ -124,5 +140,5 @@ export function useFleetsDatabase() {
         }
     }
 
-    return { createFleet, listAllFleets, updateFleet, findById, deleteAllFleets, listFleetsNotSent };
+    return { createFleet, listAllFleets, updateFleet, findById, deleteAllFleets, listFleetsNotSent, setSent };
 }

@@ -233,7 +233,7 @@ export default function InitialConfig() {
                                 {isActive ? (<Text className="text-green-500 text-lg font-heading">Este dispositivo está ativo ✅</Text>) : (<Text className="text-lg font-heading">Aguardando responsta 🕑</Text>)}
                                 {
                                     isActive === true ? (
-                                        <Button onPress={() => { router.push('/(auth-routes)/signin') }}>
+                                        <Button onPress={() => { router.push('/(auth-routes)/signin'), setShowModal(false) }}>
                                             <Button.Text>
                                                 Continuar
                                             </Button.Text>

@@ -3,9 +3,9 @@ import { userSessionDatabase } from "@/src/databases/users/userSessionDatabase";
 import { formatDate } from "@/src/utils/functions/dateFormatted";
 import { Feather, FontAwesome, MaterialCommunityIcons } from "@expo/vector-icons";
 import { useFocusEffect, useRouter } from "expo-router";
-import { useCallback, useEffect, useState } from "react";
-import { ActivityIndicator, Alert, BackHandler, Image, Modal, Pressable, Text, View } from "react-native";
-import { GestureHandlerRootView, TouchableOpacity } from "react-native-gesture-handler";
+import { useCallback, useDebugValue, useEffect, useState } from "react";
+import { ActivityIndicator, Alert, BackHandler, Image, Modal, Pressable, Text, TouchableHighlight, View } from "react-native";
+import { GestureHandlerRootView, RectButton, ScrollView, TouchableOpacity } from "react-native-gesture-handler";
 import { SafeAreaView } from "react-native-safe-area-context";
 import colors from "tailwindcss/colors";
 
@@ -13,10 +13,11 @@ import Hatchback from "../../../../assets/images/hatchback.png";
 import Road from "../../../../assets/images/estrada.png";
 import Services from "../../../../assets/images/servico.png";
 import Provider from "../../../../assets/images/servicos-profissionais.png";
-import User from "../../../../assets/images/user.png";
-import Logo from "../../../../assets/images/logo-speed-colorido.png";
 import { FleetDatabase, useFleetsDatabase } from "@/src/databases/fleets/useFleetsDatabase";
 import { IconButton } from "@/src/components/menu-button";
+import { api } from "@/src/api/api";
+import { DeviceDatabase, useDeviceDatabase } from "@/src/databases/devices/useDeviceDatabase";
+import { Button } from "@/src/components/button";
 
 export default function Home() {
     const router = useRouter();
@@ -26,9 +27,12 @@ export default function Home() {
     const [month, setMonth] = useState('');
     const [modalLoading, setModalLoading] = useState(false);
     const [username, setUsername] = useState('');
+    const [showModal, setShowModal] = useState(false);
     const [fleetPending, setFleetPending] = useState<FleetDatabase[]>([]);
+    const [deviceData, setDeviceData] = useState<DeviceDatabase[]>([]);
 
     const typeServiceDatabase = useTypeServicesDatabase();
+    const deviceDatabase = useDeviceDatabase();
     const sessionDatabase = userSessionDatabase();
     const fleetDatabase = useFleetsDatabase();
 
@@ -104,13 +108,45 @@ export default function Home() {
 
     async function handleGetFleetsToSent() {
         try {
-            const response = await fleetDatabase.listFleetsNotSent();
-            setFleetPending(response);
+            setModalLoading(true);
+            const [deviceResponse, fleetResponse] = await Promise.all([
+                deviceDatabase.listDevice(),
+                fleetDatabase.listFleetsNotSent()
+            ]);
+            setFleetPending(fleetResponse);
+            setDeviceData(deviceResponse);
 
-            console.log(response);
         } catch (error) {
             console.log(error);
+        } finally {
+            setModalLoading(false);
         }
+    }
+
+    async function handleSendFleets() {
+        try {
+            const response = await api.post(`${deviceData[0].ip_api}:8082/api/mobile/send-fleets/${deviceData[0].device}`, fleetPending);
+
+            if (response.status === 200) {
+                await fleetDatabase.setSent(response.data);
+            }
+
+            Alert.alert("Dados enviados com sucesso!", "", [
+                {
+                    text: "Fechar",
+                    onPress: () => { setShowModal(false) }
+                }
+            ]);
+        } catch (error) {
+            console.log(error.response);
+            Alert.alert("Ocorreu um erro", `${error}`)
+        } finally {
+            setShowModal(false);
+        }
+    }
+
+    async function handleShowAlert() {
+        setShowModal(true);
     }
 
     useEffect(() => {
@@ -141,14 +177,45 @@ export default function Home() {
                     <Text className="text-lg font-subtitle text-white">Cadastrando Serviços...</Text>
                 </View>
             </Modal>
+            <Modal visible={showModal} animationType="fade" transparent>
+                <View className="flex-1 items-center justify-center p-3" style={{ backgroundColor: 'rgba(0, 0, 0, 0.8)' }} >
+                    <View className="flex items-center justify-center w-full h-3/6 bg-gray-50 p-3">
+                        <Text className="text-xl font-subtitle text-blue-950 text-center">Enviar Dados</Text>
+                        <Text className="font-body text-sm text-center">Listamos abaixo algumas frotas que ainda serão enviadas.</Text>
+                        <ScrollView className="flex space-y-2 mt-6">
+                            {
+                                fleetPending && fleetPending.map((fleet) => (
+                                    <View className="flex flex-row space-x-3 rounded-md bg-gray-200 p-3">
+                                        <Text className="font-heading">{fleet.id}</Text>
+                                        <Text className="font-body">{fleet.description}</Text>
+                                        <Text className="font-body">R$ {fleet.price.toFixed(2)}</Text>
+                                    </View>
+                                ))
+                            }
+                        </ScrollView>
+                        <View className="w-full p-1 space-y-2">
+                            <Button onPress={handleSendFleets}>
+                                <Button.Text>
+                                    <Text>Enviar</Text>
+                                </Button.Text>
+                            </Button>
+                            <TouchableOpacity className="w-full h-12 rounded-lg items-center justify-center flex-row bg-red-400" onPress={() => { setShowModal(false) }}>
+                                <Text className="text-lg font-body mr-4">
+                                    Cancelar
+                                </Text>
+                            </TouchableOpacity>
+                        </View>
+                    </View>
+                </View>
+            </Modal>
             <GestureHandlerRootView>
                 <SafeAreaView className="relative flex flex-row justify-between bg-gray-200 border-b-[1px] border-gray-300 py-14 px-4">
-                    <Pressable className="absolute top-10 left-7" onPress={() => { }}>
+                    <Pressable className="absolute top-14 left-7" onPress={handleShowAlert}>
                         {
                             fleetPending.length > 0 &&
                             < View className="relative">
                                 <Feather name="send" size={24} color={colors.blue[950]} />
-                                <View className="absolute right-0 top-4">
+                                <View className="-z-10 absolute right-0 top-4">
                                     <MaterialCommunityIcons name="circle" color={colors.red[600]} />
                                 </View>
                             </View>
@@ -173,43 +240,27 @@ export default function Home() {
                         <IconButton
                             source={<Image className="w-14 h-14" resizeMode="contain" source={Hatchback} />}
                             title="Nova frota"
-<<<<<<< HEAD
                             onPress={() => { router.push("/(signed-routes)/vehicles") }}
-=======
-                            onPress={() => { router.push('/(signed-routes)/vehicles') }}
->>>>>>> 0296ee3ef1a15b6629c8e468d84f922725cf627d
+
                         />
                         <IconButton
                             source={<Image className="w-14 h-14" resizeMode="contain" source={Road} />}
                             title="Frotas"
-<<<<<<< HEAD
                             onPress={() => { router.push("/(signed-routes)/fleets") }}
-=======
-                            onPress={() => { router.push('/(signed-routes)/fleets') }}
->>>>>>> 0296ee3ef1a15b6629c8e468d84f922725cf627d
                         />
                         <IconButton
                             source={<Image className="w-14 h-14" resizeMode="contain" source={Provider} />}
                             title="Prestadores"
-<<<<<<< HEAD
                             onPress={() => { router.push("/(signed-routes)/providers") }}
-=======
-                            onPress={() => { router.push('/(signed-routes)/providers') }}
->>>>>>> 0296ee3ef1a15b6629c8e468d84f922725cf627d
                         />
                         <IconButton
                             source={<Image className="w-14 h-14" resizeMode="contain" source={Services} />}
                             title="Serviços"
-<<<<<<< HEAD
-                            onPress={() => { router.push("/(signed-routes)/registered-services") }}
-=======
                             onPress={() => { router.push('/(signed-routes)/registered-services') }}
->>>>>>> 0296ee3ef1a15b6629c8e468d84f922725cf627d
                         />
                     </View>
                 </View>
             </GestureHandlerRootView >
         </>
-
     )
 }

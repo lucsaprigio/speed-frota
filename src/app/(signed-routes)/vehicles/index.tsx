@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 import { ScrollView, Text, TouchableOpacity, View } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { useFocusEffect, useRouter } from "expo-router";
@@ -6,8 +6,7 @@ import { ServiceCard } from "@/src/components/service-card";
 import { useVehiclesDatabase, VehiclesDatabase } from "@/src/databases/vehicles/useVehiclesDatabase";
 
 import { SafeAreaView } from "react-native-safe-area-context";
-import { Feather, MaterialIcons } from "@expo/vector-icons";
-import colors from "tailwindcss/colors";
+import { Feather } from "@expo/vector-icons";
 
 export default function Vehicles() {
     const router = useRouter();
@@ -26,11 +25,7 @@ export default function Vehicles() {
     }
 
     function handleGoToCreateService(carId: number, plate: string, description: string) {
-<<<<<<< HEAD
         return router.push({ pathname: "/(signed-routes)/new-service", params: { carId, plate, description } });
-=======
-        return router.push({ pathname: '/(signed-routes)/new-service', params: { carId, plate, description } });
->>>>>>> 0296ee3ef1a15b6629c8e468d84f922725cf627d
     }
 
     useFocusEffect(useCallback(() => {

@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { SafeAreaView, ScrollView, Text, TouchableOpacity, View, StyleSheet, Alert } from "react-native";
+import { SafeAreaView, ScrollView, Text, TouchableOpacity, View, StyleSheet, Alert, ScrollViewBase } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { CameraView, CameraType, useCameraPermissions } from "expo-camera";
@@ -16,6 +16,9 @@ import { Modal } from "react-native";
 import { Image } from "react-native";
 import { FleetDatabase, useFleetsDatabase } from "@/src/databases/fleets/useFleetsDatabase";
 import { TypeServiceDatabase, useTypeServicesDatabase } from "@/src/databases/type-service/useTypeServicesDatabase";
+import { ActionInput } from "@/src/components/input-action";
+import { SearchInput } from "@/src/components/search-input";
+import { ProviderDatabase, useProvidersDatabase } from "@/src/databases/provider-db/useProvidersDatabase";
 
 
 export default function Service() {
@@ -33,9 +36,18 @@ export default function Service() {
     const [permission, requestPermission] = useCameraPermissions();
     const [capturedPhoto, setCapturedPhoto] = useState<string | null>(null);
     const [typeServices, setTypeServices] = useState<TypeServiceDatabase[]>([]);
+    const [providers, setProviders] = useState<ProviderDatabase[]>([]);
+    const [modalProvider, setModalProvider] = useState(false);
+    const [search, setSearch] = useState('');
 
     const fleetsDatabase = useFleetsDatabase();
     const typeService = useTypeServicesDatabase();
+
+    const providerDatabase = useProvidersDatabase();
+
+    const filteredProviders = search.length > 0
+        ? providers.filter(provider => provider.providerName.toLocaleUpperCase().includes(search.toLocaleUpperCase().normalize('NFD').replace(/[\u0300-\u036f]/g, "")))
+        : [];
 
     async function getTypeServices() {
         try {
@@ -45,6 +57,22 @@ export default function Service() {
             setServiceDescription(response[0].description)
         } catch (error) {
             Alert.alert('Ocorreu um erro', `${error}`)
+        }
+    }
+
+    async function handleListProviders() {
+        try {
+            const response = await providerDatabase.listAll();
+
+            const providersUpperCase = response.map(provider => ({
+                ...provider,
+                providerName: provider.providerName.toUpperCase().normalize('NFD').replace(/[\u0300-\u036f]/g, "")
+            }))
+
+            setProviders(providersUpperCase);
+
+        } catch (error) {
+            console.log(error);
         }
     }
 
@@ -66,7 +94,11 @@ export default function Service() {
             });
 
             if (Number(price) <= 0) {
-                Alert.alert("Por favor, preencha o valor!")
+                Alert.alert("Valor é obrigatório ⚠", "Por favor, preencha o valor!")
+            }
+
+            if (provider.length < 5) {
+                Alert.alert("Prestador é obrigatório ⚠", "Por favor preencha o prestador!")
             }
 
             setPrice("");
@@ -89,8 +121,18 @@ export default function Service() {
         }
     }
 
+    function handleShowModal() {
+        return setModalProvider(true);
+    }
+
+    function handleSetProvider(provider: string) {
+        setProvider(provider);
+        setModalProvider(false);
+    }
+
     useEffect(() => {
         getTypeServices();
+        handleListProviders();
     }, []);
 
     return (
@@ -144,6 +186,58 @@ export default function Service() {
                         </View >
                     )
                 }
+            </Modal>
+            <Modal visible={modalProvider} animationType="slide" transparent>
+                <View className="flex h-full justify-center p-3" style={{ backgroundColor: 'rgba(0, 0, 0, 0.8)' }}>
+                    <View className="flex h-3/4 justify-center items-center bg-gray-50 p-8 rounded-md space-y-4">
+                        <SearchInput
+                            value={search}
+                            onChangeText={setSearch}
+                            actionButton={() => { setSearch('') }}
+                            isFilled={!!search}
+                            placeholder="Pesquisar"
+                        />
+                        <ScrollView className="w-full space-y-3">
+                            {
+                                search !== '' && filteredProviders.length > 0 ? (
+                                    filteredProviders.map((provider) => (
+                                        <TouchableOpacity
+                                            key={provider.id}
+                                            className="bg-gray-200 rounded-md p-5"
+                                            onPress={() => handleSetProvider(provider.providerName)}
+                                            activeOpacity={0.7}
+                                        >
+                                            <View className="flex flex-row items-center justify-between space-x-8">
+                                                <Text className="text-left font-body">{provider.id}</Text>
+                                                <Text className="text-left font-body">{provider.providerName}</Text>
+                                                <Feather name="check" />
+                                            </View>
+                                        </TouchableOpacity>
+                                    ))
+                                ) : search !== '' && filteredProviders.length === 0 ? (
+                                    <View className="flex items-center justify-center mt-20">
+                                        <Text className="text-gray-500 font-body text-md">Sem resultados na pesquisa</Text>
+                                    </View>
+                                ) : (
+                                    providers.slice(0, 10).map((provider) => (
+                                        <TouchableOpacity
+                                            key={provider.id}
+                                            className="bg-gray-200 rounded-md p-5"
+                                            onPress={() => handleSetProvider(provider.providerName)}
+                                            activeOpacity={0.7}
+                                        >
+                                            <View className="flex flex-row items-center justify-between space-x-8">
+                                                <Text className="text-left font-body">{provider.id}</Text>
+                                                <Text className="text-left font-body">{provider.providerName}</Text>
+                                                <Feather name="check" />
+                                            </View>
+                                        </TouchableOpacity>
+                                    )
+                                    ))
+                            }
+                        </ScrollView>
+                    </View>
+                </View>
             </Modal >
             <GestureHandlerRootView>
                 <SafeAreaView className="flex flex-row justify-between bg-blue-950 py-14 px-4 shadow-sm">
@@ -184,11 +278,12 @@ export default function Service() {
                             textEditabled={false}
                         />
 
-                        <Input
-                            title="Prestador do serviço"
+                        <ActionInput
+                            title="Prestador"
                             placeholder="Digite o prestador"
                             value={provider}
                             onChangeText={setProvider}
+                            actionButton={() => { handleShowModal() }}
                         />
 
                         <Input
