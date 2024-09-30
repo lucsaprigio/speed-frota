@@ -93,7 +93,7 @@ export default function Home() {
         Alert.alert('Logout', 'Deseja mesmo sair?', [
             {
                 text: "Sair",
-                onPress: () => { router.push("/signin") }
+                onPress: () => { router.push('/(auth-routes)/signin') }
             },
             {
                 text: "Cancelar",
@@ -173,22 +173,22 @@ export default function Home() {
                         <IconButton
                             source={<Image className="w-14 h-14" resizeMode="contain" source={Hatchback} />}
                             title="Nova frota"
-                            onPress={() => { router.push("/vehicles") }}
+                            onPress={() => { router.push('/(signed-routes)/vehicles') }}
                         />
                         <IconButton
                             source={<Image className="w-14 h-14" resizeMode="contain" source={Road} />}
                             title="Frotas"
-                            onPress={() => { router.push("/fleets") }}
+                            onPress={() => { router.push('/(signed-routes)/fleets') }}
                         />
                         <IconButton
                             source={<Image className="w-14 h-14" resizeMode="contain" source={Provider} />}
                             title="Prestadores"
-                            onPress={() => { router.push("/providers") }}
+                            onPress={() => { router.push('/(signed-routes)/providers') }}
                         />
                         <IconButton
                             source={<Image className="w-14 h-14" resizeMode="contain" source={Services} />}
                             title="Serviços"
-                            onPress={() => { router.push("/registered-services") }}
+                            onPress={() => { router.push('/(signed-routes)/registered-services') }}
                         />
                     </View>
                 </View>

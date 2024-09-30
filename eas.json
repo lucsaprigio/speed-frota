@@ -1,9 +1,7 @@
 {
     "build": {
         "preview": {
-            "env": {},
             "android": {
-                "gradleCommand": ":app:assembleRelease",
                 "buildType": "apk"
             }
         },
@@ -20,6 +18,8 @@
             "developmentClient": true,
             "distribution": "internal"
         },
-        "production": {}
+        "production": {
+            "autoIncrement": true
+        }
     }
 }

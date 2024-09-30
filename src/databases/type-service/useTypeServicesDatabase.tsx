@@ -12,7 +12,6 @@ export function useTypeServicesDatabase() {
         const statement = await database.prepareAsync(
             'INSERT INTO type_service (description) VALUES ($description);'
         );
-
         try {
             const result = await statement.executeAsync({
                 $description: data.description
