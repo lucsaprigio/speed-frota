@@ -1,7 +1,6 @@
 {
     "build": {
         "preview": {
-            "env": {},
             "android": {
                 "buildType": "apk"
             }
@@ -19,6 +18,8 @@
             "developmentClient": true,
             "distribution": "internal"
         },
-        "production": {}
+        "production": {
+            "autoIncrement": true
+        }
     }
 }

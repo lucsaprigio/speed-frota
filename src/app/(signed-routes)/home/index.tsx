@@ -93,7 +93,7 @@ export default function Home() {
         Alert.alert('Logout', 'Deseja mesmo sair?', [
             {
                 text: "Sair",
-                onPress: () => { router.push("/signin") }
+                onPress: () => { router.push('/(auth-routes)/signin') }
             },
             {
                 text: "Cancelar",
@@ -173,22 +173,38 @@ export default function Home() {
                         <IconButton
                             source={<Image className="w-14 h-14" resizeMode="contain" source={Hatchback} />}
                             title="Nova frota"
+<<<<<<< HEAD
                             onPress={() => { router.push("/(signed-routes)/vehicles") }}
+=======
+                            onPress={() => { router.push('/(signed-routes)/vehicles') }}
+>>>>>>> 0296ee3ef1a15b6629c8e468d84f922725cf627d
                         />
                         <IconButton
                             source={<Image className="w-14 h-14" resizeMode="contain" source={Road} />}
                             title="Frotas"
+<<<<<<< HEAD
                             onPress={() => { router.push("/(signed-routes)/fleets") }}
+=======
+                            onPress={() => { router.push('/(signed-routes)/fleets') }}
+>>>>>>> 0296ee3ef1a15b6629c8e468d84f922725cf627d
                         />
                         <IconButton
                             source={<Image className="w-14 h-14" resizeMode="contain" source={Provider} />}
                             title="Prestadores"
+<<<<<<< HEAD
                             onPress={() => { router.push("/(signed-routes)/providers") }}
+=======
+                            onPress={() => { router.push('/(signed-routes)/providers') }}
+>>>>>>> 0296ee3ef1a15b6629c8e468d84f922725cf627d
                         />
                         <IconButton
                             source={<Image className="w-14 h-14" resizeMode="contain" source={Services} />}
                             title="Serviços"
+<<<<<<< HEAD
                             onPress={() => { router.push("/(signed-routes)/registered-services") }}
+=======
+                            onPress={() => { router.push('/(signed-routes)/registered-services') }}
+>>>>>>> 0296ee3ef1a15b6629c8e468d84f922725cf627d
                         />
                     </View>
                 </View>
